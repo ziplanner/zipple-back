@@ -20,7 +20,7 @@ public class BasicUpdateRequest {
     @Email(message = "유효한 이메일 주소 형식이 아닙니다.")
     private String email;
 
-    @Schema(description = "공인중개사 구분", example = "소속 또는 개업 (BUSINESS_AGENT, AFFILIATED_AGENT)")
+    @Schema(description = "공인중개사 구분", example = "개업")
     private String agentType;
 
     @Schema(description = "폰 번호", example = "010-2222-1111")

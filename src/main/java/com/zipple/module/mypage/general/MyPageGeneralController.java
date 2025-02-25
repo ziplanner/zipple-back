@@ -46,11 +46,9 @@ public class MyPageGeneralController {
     }
 
     @Operation(
-            summary = "찜 일단 보류"
+            summary = "좋아요"
     )
-    @GetMapping(
-            value = "/zzim"
-    )
+    @GetMapping(value = "/like")
     public ResponseEntity<Void> getZzim() {
         return ResponseEntity.ok().build();
     }
