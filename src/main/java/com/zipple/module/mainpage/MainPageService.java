@@ -40,7 +40,6 @@ public class MainPageService {
     private final PortfolioImageRepository portfolioImageRepository;
     private final UserRepository userRepository;
 
-    //포트폴리오 개수, 중개사 타입, 중개사 이름, 사업장 이름,  자기소개 제목, 대표인지 아닌지, 1인가구 전문가인지 아닌지
     @Transactional(readOnly = true)
     public MatchingResponse getMatchingProfile(Pageable pageable) {
         Page<User> userPage = userRepository.findAll(pageable);

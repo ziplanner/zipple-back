@@ -1,6 +1,8 @@
 package com.zipple.module.review;
 
 import com.zipple.module.mainpage.domain.ReviewResponse;
+import com.zipple.module.review.domain.ReviewRequest;
+import com.zipple.module.review.entity.Review;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,19 +13,48 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/api/v1/reviews")
 @Tag(name = "리뷰")
 public class ReviewController {
 
     private final ReviewService reviewService;
 
-
-    @Operation(summary = "공인 중개사 리뷰")
-    @GetMapping(value = "/{agentId}/review")
-    public ResponseEntity<List<ReviewResponse>> getReview(
-            @Parameter(name = "agentId", description = "리뷰 달린 중개사 아이디")
-            @PathVariable(value = "agentId") Long userId
+    @Operation(summary = "리뷰 작성", description = "공인중개사에 대한 리뷰를 작성합니다.")
+    @PostMapping("/{agentId}")
+    public ResponseEntity<Review> createReview(
+            @Parameter(name = "agentId", description = "리뷰 달릴 중개사")
+            @PathVariable(value = "agentId") Long agentId,
+            @RequestBody ReviewRequest reviewRequest
     ) {
-        return ResponseEntity.ok(reviewService.getReview(userId));
+        return ResponseEntity.ok(reviewService.createReview(agentId, reviewRequest));
+    }
+
+    @Operation(summary = "리뷰 수정", description = "작성한 리뷰를 수정합니다.")
+    @PutMapping("/{reviewId}")
+    public ResponseEntity<Review> updateReview(
+            @Parameter(name = "agentId", description = "리뷰 달릴 중개사")
+            @PathVariable(value = "agentId") Long reviewId,
+            @RequestBody ReviewRequest reviewRequest
+            ) {
+        return ResponseEntity.ok(reviewService.updateReview(reviewId, reviewRequest));
+    }
+
+    @Operation(summary = "리뷰 삭제", description = "작성한 리뷰를 삭제합니다.")
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<String> deleteReview(@PathVariable(value = "agentId") Long reviewId) {
+        reviewService.deleteReview(reviewId);
+        return ResponseEntity.ok("리뷰가 삭제되었습니다.");
+    }
+
+    @Operation(summary = "공인중개사 리뷰 조회", description = "특정 공인중개사의 모든 리뷰를 조회합니다.")
+    @GetMapping("/{agentId}")
+    public ResponseEntity<List<Review>> getReviewsByAgent(@PathVariable(value = "agentId") Long agentId) {
+        return ResponseEntity.ok(reviewService.getReviewsByAgent(agentId));
+    }
+
+    @Operation(summary = "공인중개사 평균 별점 조회", description = "특정 공인중개사의 평균 별점을 조회합니다.")
+    @GetMapping("/{agentId}/average")
+    public ResponseEntity<Double> getAverageStarCount(@PathVariable(value = "agentId") Long agentId) {
+        return ResponseEntity.ok(reviewService.getAverageStarCount(agentId));
     }
 }
