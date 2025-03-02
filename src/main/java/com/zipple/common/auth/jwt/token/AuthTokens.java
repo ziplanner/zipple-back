@@ -11,8 +11,9 @@ import lombok.NoArgsConstructor;
 @Schema(description = "액세스 토큰")
 public class AuthTokens {
     private String accessToken;
+    private String refreshToken;
 
-    public static AuthTokens of(String accessToken) {
-        return new AuthTokens(accessToken);
+    public static AuthTokens of(String accessToken, String refreshToken) {
+        return new AuthTokens(accessToken, refreshToken);
     }
 }

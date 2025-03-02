@@ -5,7 +5,7 @@ server:
 
 spring:
   datasource:
-    url: ${DB-URL:jdbc:mariadb://localhost:3300/zipple}
+    url: ${DB-URL:jdbc:mariadb://44.203.190.167:3306/zipple}
     username: ${DB-NAME:root}
     password: ${DB-PASSWORD:dongcci}
     driver-class-name: org.mariadb.jdbc.Driver

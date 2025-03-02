@@ -108,7 +108,7 @@ public class MyPageAgentService {
                 .build();
 
         List<PortfolioImage> savedImages = new ArrayList<>();
-        String baseDir = "/home/ubuntu/zipple/upload";
+        String baseDir = "/home/ubuntu/zipple/upload/";
         String baseUrl = "http://44.203.190.167:8081";
 
         for (int i = 0; i < portfolioImages.getPortfolioImages().size(); i++) {
@@ -120,7 +120,7 @@ public class MyPageAgentService {
                 File destFile = new File(filePath);
                 image.transferTo(destFile);
 
-                String imageUrl = baseUrl + "/zipple/" + fileName;
+                String imageUrl = baseUrl + "/zipple/" + baseDir + fileName;
 
                 PortfolioImage portfolioImage = PortfolioImage.builder()
                         .portfolio(portfolio)
