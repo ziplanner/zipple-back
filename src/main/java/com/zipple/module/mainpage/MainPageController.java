@@ -2,7 +2,6 @@ package com.zipple.module.mainpage;
 
 import com.zipple.module.mainpage.domain.DetailProfileResponse;
 import com.zipple.module.mainpage.domain.MatchingResponse;
-import com.zipple.module.mainpage.domain.ReviewResponse;
 import com.zipple.module.member.common.entity.category.AgentType;
 import com.zipple.module.mypage.agent.portfolio.domain.PortfolioPageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,8 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @Tag(name = "메인 화면")
 @RestController

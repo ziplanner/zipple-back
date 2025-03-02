@@ -1,5 +1,6 @@
 package com.zipple.module.member.common.entity;
 
+import com.zipple.module.like.entity.AgentLike;
 import com.zipple.module.member.common.entity.category.AgentType;
 import com.zipple.module.member.common.entity.category.AgentSpecialty;
 import jakarta.persistence.*;
@@ -7,6 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "agent_users")
@@ -23,6 +27,9 @@ public class AgentUser {
     @MapsId
     @JoinColumn(name = "id")
     private User user;
+
+    @OneToMany(mappedBy = "agentUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AgentLike> receivedLikes = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private AgentType agentType;

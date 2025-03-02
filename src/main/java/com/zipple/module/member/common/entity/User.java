@@ -1,6 +1,7 @@
 package com.zipple.module.member.common.entity;
 
 import com.zipple.common.oauth.OAuthProvider;
+import com.zipple.module.like.entity.AgentLike;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,8 +11,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -39,6 +42,7 @@ public class User implements UserDetails {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -47,6 +51,9 @@ public class User implements UserDetails {
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     private AgentUser agentUser;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AgentLike> likedAgents = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

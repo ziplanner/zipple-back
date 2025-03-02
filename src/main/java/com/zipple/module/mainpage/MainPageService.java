@@ -1,6 +1,5 @@
 package com.zipple.module.mainpage;
 
-import com.zipple.common.utils.GetMember;
 import com.zipple.module.mainpage.domain.AgentMatchingResponse;
 import com.zipple.module.mainpage.domain.DetailProfileResponse;
 import com.zipple.module.mainpage.domain.MatchingResponse;

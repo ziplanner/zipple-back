@@ -16,12 +16,12 @@ spring:
         show_sql: true
         format_sql: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
   servlet:
     multipart:
-      max-file-size: 20MB
+      max-file-size: 25MB
       max-request-size: 100MB
       location: /tmp/upload
 
