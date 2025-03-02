@@ -2,6 +2,7 @@ package com.zipple.module.mainpage;
 
 import com.zipple.module.mainpage.domain.DetailProfileResponse;
 import com.zipple.module.mainpage.domain.MatchingResponse;
+import com.zipple.module.mainpage.domain.ReviewResponse;
 import com.zipple.module.member.common.entity.category.AgentType;
 import com.zipple.module.mypage.agent.portfolio.domain.PortfolioPageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Tag(name = "메인 화면")
 @RestController
 @RequestMapping(value = "/api/v1/main")
@@ -25,19 +28,13 @@ public class MainPageController {
 
     private final MainPageService mainPageService;
 
-    @Operation(summary = "메인은 일단 프론트에서 뿌릴까요")
-    @GetMapping
-    public ResponseEntity<Void> getMainPage() {
-        return ResponseEntity.ok().build();
-    }
-
     @Operation(summary = "매칭 프로필 기본 화면")
     @GetMapping(value = "/matching")
     public ResponseEntity<MatchingResponse> getMatchingProfile(
             @Parameter(name = "page")
-            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
             @Parameter(name = "size")
-            @RequestParam(value = "size", defaultValue = "9") int size
+            @RequestParam(value = "size", defaultValue = "9") Integer size
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         MatchingResponse matchingResponse = mainPageService.getMatchingProfile(pageable);
@@ -61,9 +58,9 @@ public class MainPageController {
             @Parameter(name = "agentType")
             @RequestParam(value = "agentType") String agentType,
             @Parameter(name = "page")
-            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
             @Parameter(name = "size")
-            @RequestParam(value = "size", defaultValue = "9") int size
+            @RequestParam(value = "size", defaultValue = "9") Integer size
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         AgentType type = AgentType.fromValue(agentType);

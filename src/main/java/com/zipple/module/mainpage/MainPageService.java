@@ -4,6 +4,7 @@ import com.zipple.common.utils.GetMember;
 import com.zipple.module.mainpage.domain.AgentMatchingResponse;
 import com.zipple.module.mainpage.domain.DetailProfileResponse;
 import com.zipple.module.mainpage.domain.MatchingResponse;
+import com.zipple.module.mainpage.domain.ReviewResponse;
 import com.zipple.module.member.common.entity.AgentUser;
 import com.zipple.module.member.common.entity.User;
 import com.zipple.module.member.common.entity.category.AgentSpecialty;
@@ -35,7 +36,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MainPageService {
 
-    private final GetMember getMember;
     private final AgentUserRepository agentUserRepository;
     private final PortfolioRepository portfolioRepository;
     private final PortfolioImageRepository portfolioImageRepository;
@@ -125,5 +125,10 @@ public class MainPageService {
                 .currentPage(page.getNumber())
                 .isLast(page.isLast())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getReview(Long userId) {
+        return null;
     }
 }

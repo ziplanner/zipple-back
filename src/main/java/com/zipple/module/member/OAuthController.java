@@ -1,6 +1,7 @@
 package com.zipple.module.member;
 
 import com.zipple.common.oauth.kakao.KakaoLoginParams;
+import com.zipple.module.member.oauth.model.AccessTokenRenewResponse;
 import com.zipple.module.member.oauth.model.AuthLoginResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,7 +30,10 @@ public class OAuthController {
         return ResponseEntity.ok(oAuthLoginService.login(params));
     }
 
-    @Operation(summary = "카카오 로그아웃")
+    @Operation(
+            summary = "카카오 로그아웃"
+            , description = "토큰 삭제"
+    )
     @PatchMapping(value = "/logout")
     public ResponseEntity<String> logoutKakao() {
         try {
@@ -50,5 +54,12 @@ public class OAuthController {
     public ResponseEntity<String> withdraw() {
         oAuthLoginService.withdraw();
         return ResponseEntity.ok("회원탈퇴 성공");
+    }
+
+    @Operation(summary = "액세스 토큰 갱신")
+    @PostMapping(value = "/renew")
+    public ResponseEntity<AccessTokenRenewResponse> renewToken() {
+        AccessTokenRenewResponse accessTokenRenewResponse = oAuthLoginService.renewAccessToken();
+        return ResponseEntity.ok(accessTokenRenewResponse);
     }
 }

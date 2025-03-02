@@ -20,7 +20,22 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
-        return new OpenAPI().info(new Info());
+        return new OpenAPI()
+                .info(new Info()
+                        .title("Zipple API")
+                        .description("공인 중개 서비스 API 문서")
+                        .version("v1.0.0")
+                        .contact(new Contact()
+                                .name("Donghwi")
+                                .email("tnqlsdld0222@gmail.com")))
+                .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME)) // 보안 스키마 적용
+                .components(new Components()
+                        .addSecuritySchemes(SECURITY_SCHEME_NAME, new SecurityScheme()
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")
+                                .in(SecurityScheme.In.HEADER)
+                                .name(SECURITY_SCHEME_NAME)));
     }
 
     @Bean
@@ -28,27 +43,39 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
                 .group("default")
                 .packagesToScan("com.zipple")
-                .addOpenApiCustomizer(customizeGroupedApi())
                 .build();
     }
-
-    private OpenApiCustomizer customizeGroupedApi() {
-        return openApi -> {
-            openApi.info(new Info()
-                            .title("Zipple API")
-                            .description("공인 중개 서비스 API 문서")
-                            .version("v1.0.0")
-                            .contact(new Contact()
-                                    .name("Donghwi")
-                                    .email("tnqlsdld0222@gmail.com")))
-                    .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
-                    .components(new Components()
-                            .addSecuritySchemes(SECURITY_SCHEME_NAME, new SecurityScheme()
-                                    .type(SecurityScheme.Type.HTTP)
-                                    .scheme("bearer")
-                                    .bearerFormat("JWT")
-                                    .in(SecurityScheme.In.HEADER)
-                                    .name(SECURITY_SCHEME_NAME)));
-        };
-    }
+//    @Bean
+//    public OpenAPI openAPI() {
+//        return new OpenAPI().info(new Info());
+//    }
+//
+//    @Bean
+//    public GroupedOpenApi groupedOpenApi() {
+//        return GroupedOpenApi.builder()
+//                .group("default")
+//                .packagesToScan("com.zipple")
+//                .addOpenApiCustomizer(customizeGroupedApi())
+//                .build();
+//    }
+//
+//    private OpenApiCustomizer customizeGroupedApi() {
+//        return openApi -> {
+//            openApi.info(new Info()
+//                            .title("Zipple API")
+//                            .description("공인 중개 서비스 API 문서")
+//                            .version("v1.0.0")
+//                            .contact(new Contact()
+//                                    .name("Donghwi")
+//                                    .email("tnqlsdld0222@gmail.com")))
+//                    .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
+//                    .components(new Components()
+//                            .addSecuritySchemes(SECURITY_SCHEME_NAME, new SecurityScheme()
+//                                    .type(SecurityScheme.Type.HTTP)
+//                                    .scheme("bearer")
+//                                    .bearerFormat("JWT")
+//                                    .in(SecurityScheme.In.HEADER)
+//                                    .name(SECURITY_SCHEME_NAME)));
+//        };
+//    }
 }

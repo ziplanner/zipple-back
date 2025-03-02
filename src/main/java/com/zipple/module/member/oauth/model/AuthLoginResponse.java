@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 public class AuthLoginResponse {
     @Schema(description = "액세스 토큰")
     private String accessToken;
+    @Schema(description = "리프레시 토큰")
+    private String refreshToken;
     @Schema(description = "소셜 로그인 시 등록된 사용자인지 아닌지")
     private Boolean isRegistered;
 }

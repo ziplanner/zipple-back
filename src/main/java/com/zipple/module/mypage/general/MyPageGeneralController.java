@@ -44,13 +44,4 @@ public class MyPageGeneralController {
         myPageGeneralService.deleteMyPageUser();
         return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
     }
-
-    @Operation(
-            summary = "좋아요"
-    )
-    @GetMapping(value = "/like")
-    public ResponseEntity<Void> getZzim() {
-        return ResponseEntity.ok().build();
-    }
-
 }
