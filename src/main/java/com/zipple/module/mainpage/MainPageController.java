@@ -12,10 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "메인 화면")
 @RestController
@@ -25,12 +22,12 @@ public class MainPageController {
 
     private final MainPageService mainPageService;
 
-    @Operation(summary = "매칭 프로필 기본 화면")
+    @Operation(summary = "매칭 프로필 기본 화면", description = "페이징을 이용하여 중개사의 매칭 프로필을 조회합니다.")
     @GetMapping(value = "/matching")
     public ResponseEntity<MatchingResponse> getMatchingProfile(
-            @Parameter(name = "page")
+            @Parameter(name = "page", description = "페이지 번호", example = "0")
             @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @Parameter(name = "size")
+            @Parameter(name = "size", description = "페이지 크기", example = "9")
             @RequestParam(value = "size", defaultValue = "9") Integer size
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -39,29 +36,27 @@ public class MainPageController {
     }
 
     @Operation(summary = "공인 중개사 상세 프로필")
-    @GetMapping(value = "/profile/detail")
+    @GetMapping(value = "/profile/detail/{agentId}")
     public ResponseEntity<DetailProfileResponse> getAgentDetailProfile(
-            @Parameter(name = "userId") @RequestParam(value = "userId") Long userId
+            @Parameter(name = "agentId", description = "중개사 상세 프로필에 대한 아이디")
+            @PathVariable(value = "agentId") Long agentId
     ) {
-        DetailProfileResponse detailProfileResponse = mainPageService.getAgentDetailProfile(userId);
+        DetailProfileResponse detailProfileResponse = mainPageService.getAgentDetailProfile(agentId);
         return ResponseEntity.ok(detailProfileResponse);
     }
 
     @Operation(summary = "공인 중개사 포트폴리오")
-    @GetMapping(value = "/portfolio")
+    @GetMapping(value = "/portfolio/{agentId}")
     public ResponseEntity<PortfolioPageResponse> getAgentPortfolio(
-            @Parameter(name = "userId")
-            @RequestParam(value = "userId") Long userId,
-            @Parameter(name = "agentType")
-            @RequestParam(value = "agentType") String agentType,
-            @Parameter(name = "page")
+            @Parameter(name = "agentId", description = "중개사 상세 프로필에 대한 아이디")
+            @PathVariable(value = "agentId") Long agentId,
+            @Parameter(name = "page", description = "페이지 번호", example = "0")
             @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @Parameter(name = "size")
+            @Parameter(name = "size", description = "페이지 크기", example = "9")
             @RequestParam(value = "size", defaultValue = "9") Integer size
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        AgentType type = AgentType.fromValue(agentType);
-        PortfolioPageResponse portfolios = mainPageService.getAgentPortfolio(userId, pageable, type);
+        PortfolioPageResponse portfolios = mainPageService.getAgentPortfolio(agentId, pageable);
 
         return ResponseEntity.ok(portfolios);
     }

@@ -16,4 +16,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT AVG(r.starCount) FROM Review r WHERE r.agentUser = :agentUser")
     Double findAverageStarCountByAgent(AgentUser agentUser);
 
+    int countByAgentUser(AgentUser agentUser);
+
 }

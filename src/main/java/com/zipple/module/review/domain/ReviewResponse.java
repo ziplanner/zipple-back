@@ -1,4 +1,4 @@
-package com.zipple.module.mainpage.domain;
+package com.zipple.module.review.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,14 +7,15 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class ReviewResponse {
 
-    private String userId;
-    private String nickname;
+    private Long reviewId;
     private String profileUrl;
-    private Integer startCount;
-    private String comments;
+    private String nickname;
+    private String content;
+    private String createdAt;
+    private String updatedAt;
 
 }
