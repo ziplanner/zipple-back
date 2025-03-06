@@ -7,6 +7,7 @@ import com.zipple.module.member.email.model.EmailAgentRequest;
 import com.zipple.module.member.email.model.EmailGeneralRequest;
 import com.zipple.module.member.email.model.EmailLoginRequest;
 import com.zipple.module.member.email.model.EmailLoginResponse;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Tag(name = "이메일 회원가입/로그인")
+@Hidden
 @CrossOrigin
 @RestController
 @RequestMapping(value = "/api/v1/email")

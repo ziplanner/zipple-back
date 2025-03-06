@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zipple.module.member.oauth.model.AgentUserRequest;
 import com.zipple.module.member.oauth.model.GeneralUserRequest;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Tag(name = "소셜 로그인")
+@Hidden
 @RestController
 @RequestMapping("/api/v1/register")
 @RequiredArgsConstructor

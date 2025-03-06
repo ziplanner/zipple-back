@@ -8,9 +8,12 @@ import com.zipple.common.oauth.OAuthLoginParams;
 import com.zipple.common.oauth.RequestOAuthInfoService;
 import com.zipple.common.utils.GetMember;
 import com.zipple.module.member.common.entity.User;
+import com.zipple.module.member.common.entity.category.AgentType;
 import com.zipple.module.member.common.repository.UserRepository;
+import com.zipple.module.member.email.model.UserType;
 import com.zipple.module.member.oauth.model.AccessTokenRenewResponse;
 import com.zipple.module.member.oauth.model.AuthLoginResponse;
+import com.zipple.module.member.oauth.model.RoleResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -244,5 +247,28 @@ public class OAuthLoginService {
 
         String newAccessToken = jwtTokenProvider.generate(userId.toString(), new Date(System.currentTimeMillis() + 3600000));
         return new AccessTokenRenewResponse(newAccessToken, false);
+    }
+
+    @Transactional(readOnly = true)
+    public RoleResponse getRole() {
+        User user = getMember.getCurrentMember();
+        return new RoleResponse(
+                determineUserType(user).toString(), user.getNickname()
+        );
+    }
+
+    private UserType determineUserType(User user) {
+        if(user.getGeneralUser() != null) {
+            return UserType.GENERAL;
+        }
+        if (user.getAgentUser() != null) {
+            AgentType agentType = user.getAgentUser().getAgentType();
+            if (agentType == AgentType.BUSINESS_AGENT) {
+                return UserType.BUSINESS_AGENT;
+            } else if (agentType == AgentType.AFFILIATED_AGENT) {
+                return UserType.AFFILIATED_AGENT;
+            }
+        }
+        return UserType.NOT_REGISTERED;
     }
 }

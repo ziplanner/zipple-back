@@ -28,11 +28,12 @@ public class SwaggerConfig {
                         .contact(new Contact()
                                 .name("Donghwi")
                                 .email("tnqlsdld0222@gmail.com")))
-                .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME)) // 보안 스키마 적용
+                .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
                 .components(new Components()
                         .addSecuritySchemes(SECURITY_SCHEME_NAME, new SecurityScheme()
                                 .type(SecurityScheme.Type.HTTP)
                                 .scheme("bearer")
+                                .description("bearer 자동 삽입")
                                 .bearerFormat("JWT")
                                 .in(SecurityScheme.In.HEADER)
                                 .name(SECURITY_SCHEME_NAME)));

@@ -29,6 +29,7 @@ public class AgentUser {
     private User user;
 
     @OneToMany(mappedBy = "agentUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<AgentLike> receivedLikes = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)

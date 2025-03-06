@@ -1,28 +1,13 @@
 package com.zipple.common.exception;
 
-public class ApiException extends Exception {
-  public ApiException() {
-    super();
-  }
+import lombok.Getter;
 
-  public ApiException(String message) {
-    super(message);
-  }
+@Getter
+public class ApiException extends RuntimeException {
+  private final ErrorCode errorCode;
 
-  public ApiException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
-  public ApiException(Throwable cause) {
-    super(cause);
-  }
-
-  protected ApiException(
-          String message,
-          Throwable cause,
-          boolean enableSuppression,
-          boolean writableStackTrace
-  ) {
-    super(message, cause, enableSuppression, writableStackTrace);
+  public ApiException(ErrorCode errorCode) {
+    super(errorCode.getMessage());
+    this.errorCode = errorCode;
   }
 }

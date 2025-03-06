@@ -24,11 +24,13 @@ public interface PortfolioImageRepository extends JpaRepository<PortfolioImage, 
                                                           Pageable pageable,
                                                           @Param("agentType") AgentType agentType);
 
-    @Query("SELECT pi FROM PortfolioImage pi " +
+    @Query("SELECT new com.zipple.module.mypage.agent.portfolio.domain.PortfolioMainImage(" +
+            "p.id, p.title, pi.imageUrl, p.createdAt) " +
+            "FROM PortfolioImage pi " +
             "JOIN pi.portfolio p " +
             "WHERE p.user.id = :userId AND p.agentType = :agentType " +
             "AND pi.isMain = true")
     Page<PortfolioMainImage> findMainImagesByUserIdWithPagination(@Param("userId") Long userId,
-                                                                  Pageable pageable,
-                                                                  @Param("agentType") AgentType agentType);
+                                                                  @Param("agentType") AgentType agentType,
+                                                                  Pageable pageable);
 }

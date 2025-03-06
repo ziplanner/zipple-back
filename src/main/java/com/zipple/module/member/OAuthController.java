@@ -3,6 +3,7 @@ package com.zipple.module.member;
 import com.zipple.common.oauth.kakao.KakaoLoginParams;
 import com.zipple.module.member.oauth.model.AccessTokenRenewResponse;
 import com.zipple.module.member.oauth.model.AuthLoginResponse;
+import com.zipple.module.member.oauth.model.RoleResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -61,5 +62,12 @@ public class OAuthController {
     public ResponseEntity<AccessTokenRenewResponse> renewToken() {
         AccessTokenRenewResponse accessTokenRenewResponse = oAuthLoginService.renewAccessToken();
         return ResponseEntity.ok(accessTokenRenewResponse);
+    }
+
+    @Operation(summary = "권한, 이름 조회")
+    @GetMapping(value = "role")
+    public ResponseEntity<RoleResponse> role() {
+        RoleResponse roleResponse = oAuthLoginService.getRole();
+        return ResponseEntity.ok(roleResponse);
     }
 }

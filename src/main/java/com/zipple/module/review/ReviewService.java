@@ -5,6 +5,7 @@ import com.zipple.module.member.common.entity.AgentUser;
 import com.zipple.module.member.common.entity.User;
 import com.zipple.module.member.common.repository.AgentUserRepository;
 import com.zipple.module.review.domain.ReviewRequest;
+import com.zipple.module.review.domain.ReviewResponse;
 import com.zipple.module.review.entity.Review;
 import com.zipple.module.review.entity.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -69,11 +71,20 @@ public class ReviewService {
     }
 
     @Transactional(readOnly = true)
-    public List<Review> getReviewsByAgent(Long agentId) {
+    public List<ReviewResponse> getReviewsByAgent(Long agentId) {
         AgentUser agentUser = agentUserRepository.findById(agentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공인중개사입니다."));
 
-        return reviewRepository.findByAgentUser(agentUser);
+        return reviewRepository.findByAgentUser(agentUser).stream()
+                .map(review -> ReviewResponse.builder()
+                        .reviewId(review.getId())
+                        .profileUrl(review.getUser().getProfile_image_url())
+                        .nickname(review.getUser().getNickname())
+                        .content(review.getContent())
+                        .createdAt(review.getCreatedAt().toString())
+                        .updatedAt(review.getUpdatedAt().toString())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

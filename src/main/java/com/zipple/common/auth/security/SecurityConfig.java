@@ -38,35 +38,32 @@ public class SecurityConfig {
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .authorizeHttpRequests(
                         (authorize) -> {
-                            authorize.requestMatchers("/api/**", "/**").permitAll();
+                            authorize.requestMatchers("/api/**",
+                                    "/swagger-ui/**", // Swagger UI
+                                    "/v3/api-docs/**", // OpenAPI Docs
+                                    "/swagger-resources/**",
+                                    "/webjars/**",
+                                    "/api/auth/**",
+                                    "/api/v1/main/**").permitAll();
                             authorize.anyRequest().authenticated();
                         }
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://34.201.103.186"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://34.201.103.186", "https://ziplanner-eruz.vercel.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "FETCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
-
-    @Bean
-    public FilterRegistrationBean<JwtFilter> jwtFilter() {
-        FilterRegistrationBean<JwtFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new JwtFilter(jwtTokenProvider));
-        registrationBean.addUrlPatterns("/api/**");
-        return registrationBean;
     }
 
     @Bean

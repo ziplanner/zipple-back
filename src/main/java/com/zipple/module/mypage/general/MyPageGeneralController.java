@@ -2,6 +2,7 @@ package com.zipple.module.mypage.general;
 
 import com.zipple.module.mypage.general.domain.MyPageResponse;
 import com.zipple.module.mypage.general.domain.MyPageUpdateRequest;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class MyPageGeneralController {
         return ResponseEntity.ok("정보 수정이 완료되었습니다.");
     }
 
+    @Hidden
     @Operation(
             summary = "일반 사용자 마이페이지 회원 탈퇴"
     )

@@ -53,6 +53,7 @@ public class User implements UserDetails {
     private AgentUser agentUser;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<AgentLike> likedAgents = new ArrayList<>();
 
     @Override

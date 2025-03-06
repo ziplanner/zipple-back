@@ -1,5 +1,6 @@
 package com.zipple.common.utils;
 
+import com.zipple.common.exception.custom.UnauthorizedException;
 import com.zipple.module.member.common.entity.User;
 import com.zipple.module.member.common.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,6 @@ public class GetMember {
                                 .getAuthentication()
                                 .getName()
                 )
-                .orElseThrow(() -> new IllegalStateException("다시 로그인 해주세요"));
+                .orElseThrow(UnauthorizedException::new);
     }
 }

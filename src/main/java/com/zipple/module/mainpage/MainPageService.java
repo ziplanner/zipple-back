@@ -1,9 +1,9 @@
 package com.zipple.module.mainpage;
 
+import com.zipple.module.like.entity.AgentLikeRepository;
 import com.zipple.module.mainpage.domain.AgentMatchingResponse;
 import com.zipple.module.mainpage.domain.DetailProfileResponse;
 import com.zipple.module.mainpage.domain.MatchingResponse;
-import com.zipple.module.mainpage.domain.ReviewResponse;
 import com.zipple.module.member.common.entity.AgentUser;
 import com.zipple.module.member.common.entity.User;
 import com.zipple.module.member.common.entity.category.AgentSpecialty;
@@ -17,6 +17,8 @@ import com.zipple.module.mypage.agent.portfolio.PortfolioRepository;
 import com.zipple.module.mypage.agent.portfolio.domain.PortfolioMainImage;
 import com.zipple.module.mypage.agent.portfolio.domain.PortfolioPageResponse;
 import com.zipple.module.mypage.agent.portfolio.domain.PortfolioProfile;
+import com.zipple.module.review.domain.ReviewResponse;
+import com.zipple.module.review.entity.ReviewRepository;
 import groovy.util.logging.Slf4j;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,8 @@ public class MainPageService {
     private final PortfolioRepository portfolioRepository;
     private final PortfolioImageRepository portfolioImageRepository;
     private final UserRepository userRepository;
+    private final AgentLikeRepository likeRepository;
+    private final ReviewRepository reviewRepository;
 
     @Transactional(readOnly = true)
     public MatchingResponse getMatchingProfile(Pageable pageable) {
@@ -53,19 +57,26 @@ public class MainPageService {
 
             if (optionalAgentUser.isPresent()) {
                 AgentUser agentUser = optionalAgentUser.get();
-                String agentSpeciality = AgentSpecialty.getDescriptionByAgentSpecialty(agentUser.getAgentSpecialty());
+                String agentSpecialty = AgentSpecialty.getDescriptionByAgentSpecialty(agentUser.getAgentSpecialty());
+
+                int likeCount = likeRepository.countByAgentUserId(userId);
+                int reviewCount = reviewRepository.countByAgentUser(agentUser);
 
                 AgentMatchingResponse agentMatchingResponse = AgentMatchingResponse.builder()
                         .userId(userId)
                         .profileUrl(user.getProfile_image_url())
-                        .agentSpecialty(agentSpeciality)
+                        .agentSpecialty(agentSpecialty)
                         .portfolioCount(portfolioCount)
                         .agentName(agentUser.getAgentName())
                         .title(agentUser.getIntroductionTitle())
+                        .startCount(likeCount)
+                        .reviewCount(reviewCount)
+                        .singleHouseholdExpert(agentUser.getSingleHouseholdExpertRequest())
                         .build();
                 matchingList.add(agentMatchingResponse);
             }
         }
+
         return MatchingResponse.builder()
                 .matching(matchingList)
                 .totalElements(userPage.getTotalElements())
@@ -78,7 +89,7 @@ public class MainPageService {
     @Transactional(readOnly = true)
     public DetailProfileResponse getAgentDetailProfile(Long userId) {
         AgentUser agentUser = agentUserRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 중개사를 찾을 수 없습니다."));
+                .orElseThrow(EntityNotFoundException::new);
 
         User user = agentUser.getUser();
 
@@ -112,9 +123,15 @@ public class MainPageService {
                 .portfolios(portfolioProfiles)
                 .build();
     }
+
     @Transactional(readOnly = true)
-    public PortfolioPageResponse getAgentPortfolio(Long userId, Pageable pageable, AgentType agentType) {
-        Page<PortfolioMainImage> page = portfolioImageRepository.findMainImagesByUserIdWithPagination(userId, pageable, agentType);
+    public PortfolioPageResponse getAgentPortfolio(Long agentId, Pageable pageable) {
+        AgentUser agentUser = agentUserRepository.findById(agentId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공인중개사입니다."));
+
+        AgentType agentType = agentUser.getAgentType();
+
+        Page<PortfolioMainImage> page = portfolioImageRepository.findMainImagesByUserIdWithPagination(agentId, agentType, pageable);
 
         return PortfolioPageResponse.builder()
                 .content(page.getContent())
@@ -123,10 +140,5 @@ public class MainPageService {
                 .currentPage(page.getNumber())
                 .isLast(page.isLast())
                 .build();
-    }
-
-    @Transactional(readOnly = true)
-    public List<ReviewResponse> getReview(Long userId) {
-        return null;
     }
 }
