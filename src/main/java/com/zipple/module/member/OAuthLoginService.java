@@ -152,7 +152,6 @@ public class OAuthLoginService {
         boolean isWithdrawn = callKakaoWithdrawAPI(kakaoAccessToken);
 
         if (!isWithdrawn) {
-            // 액세스 토큰이 만료된 경우 리프레시 토큰으로 갱신 후 다시 시도
             String newAccessToken = refreshKakaoAccessToken(userId);
             if (newAccessToken != null) {
                 isWithdrawn = callKakaoWithdrawAPI(newAccessToken);

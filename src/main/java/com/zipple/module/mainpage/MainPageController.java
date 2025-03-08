@@ -39,7 +39,7 @@ public class MainPageController {
     @GetMapping(value = "/profile/detail/{agentId}")
     public ResponseEntity<DetailProfileResponse> getAgentDetailProfile(
             @Parameter(name = "agentId", description = "중개사 상세 프로필에 대한 아이디")
-            @PathVariable(value = "agentId") Long agentId
+            @PathVariable(value = "agentId") String agentId
     ) {
         DetailProfileResponse detailProfileResponse = mainPageService.getAgentDetailProfile(agentId);
         return ResponseEntity.ok(detailProfileResponse);
@@ -49,7 +49,7 @@ public class MainPageController {
     @GetMapping(value = "/portfolio/{agentId}")
     public ResponseEntity<PortfolioPageResponse> getAgentPortfolio(
             @Parameter(name = "agentId", description = "중개사 상세 프로필에 대한 아이디")
-            @PathVariable(value = "agentId") Long agentId,
+            @PathVariable(value = "agentId") String agentId,
             @Parameter(name = "page", description = "페이지 번호", example = "0")
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @Parameter(name = "size", description = "페이지 크기", example = "9")

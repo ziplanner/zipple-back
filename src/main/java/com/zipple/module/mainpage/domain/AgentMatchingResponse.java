@@ -7,11 +7,11 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "중개사 매칭 데이터")
+@Schema(name = "중개사 매칭 데이터")
 public class AgentMatchingResponse {
 
-    @Schema(description = "유저 ID")
-    private Long userId;
+    @Schema(description = "중개사 UUID", example = "b0ki9FVoNhqM30rSKZ9tIw")
+    private String agentId;
 
     @Schema(description = "프로필 이미지", example = "http://44.203.190.167:8081/zipple/97ab79c6-e12b-49bf-bb86-abaff6fb6155_Frame 4195.png")
     private String profileUrl;
