@@ -1,5 +1,6 @@
 package com.zipple.module.mainpage;
 
+import com.zipple.common.utils.AgentIdBase64Util;
 import com.zipple.module.like.entity.AgentLikeRepository;
 import com.zipple.module.mainpage.domain.AgentMatchingResponse;
 import com.zipple.module.mainpage.domain.DetailProfileResponse;
@@ -17,7 +18,6 @@ import com.zipple.module.mypage.agent.portfolio.PortfolioRepository;
 import com.zipple.module.mypage.agent.portfolio.domain.PortfolioMainImage;
 import com.zipple.module.mypage.agent.portfolio.domain.PortfolioPageResponse;
 import com.zipple.module.mypage.agent.portfolio.domain.PortfolioProfile;
-import com.zipple.module.review.domain.ReviewResponse;
 import com.zipple.module.review.entity.ReviewRepository;
 import groovy.util.logging.Slf4j;
 import jakarta.persistence.EntityNotFoundException;
@@ -43,6 +43,7 @@ public class MainPageService {
     private final UserRepository userRepository;
     private final AgentLikeRepository likeRepository;
     private final ReviewRepository reviewRepository;
+    private final AgentIdBase64Util agentIdUUIDUtil;
 
     @Transactional(readOnly = true)
     public MatchingResponse getMatchingProfile(Pageable pageable) {
@@ -63,7 +64,7 @@ public class MainPageService {
                 int reviewCount = reviewRepository.countByAgentUser(agentUser);
 
                 AgentMatchingResponse agentMatchingResponse = AgentMatchingResponse.builder()
-                        .userId(userId)
+                        .agentId(agentIdUUIDUtil.encodeLong(userId))
                         .profileUrl(user.getProfile_image_url())
                         .agentSpecialty(agentSpecialty)
                         .portfolioCount(portfolioCount)
@@ -87,7 +88,8 @@ public class MainPageService {
     }
 
     @Transactional(readOnly = true)
-    public DetailProfileResponse getAgentDetailProfile(Long userId) {
+    public DetailProfileResponse getAgentDetailProfile(String agentId) {
+        Long userId = agentIdUUIDUtil.decodeLong(agentId);
         AgentUser agentUser = agentUserRepository.findById(userId)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -97,7 +99,6 @@ public class MainPageService {
 
         List<PortfolioProfile> portfolioProfiles = portfolios.stream()
                 .map(portfolio -> {
-                    // 대표 이미지(isMain=true) 필터링
                     Optional<PortfolioImage> mainImage = portfolio.getPortfolioImage().stream()
                             .filter(PortfolioImage::getIsMain)
                             .findFirst();
@@ -125,13 +126,14 @@ public class MainPageService {
     }
 
     @Transactional(readOnly = true)
-    public PortfolioPageResponse getAgentPortfolio(Long agentId, Pageable pageable) {
-        AgentUser agentUser = agentUserRepository.findById(agentId)
+    public PortfolioPageResponse getAgentPortfolio(String agentId, Pageable pageable) {
+        Long userId = agentIdUUIDUtil.decodeLong(agentId);
+        AgentUser agentUser = agentUserRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공인중개사입니다."));
 
         AgentType agentType = agentUser.getAgentType();
 
-        Page<PortfolioMainImage> page = portfolioImageRepository.findMainImagesByUserIdWithPagination(agentId, agentType, pageable);
+        Page<PortfolioMainImage> page = portfolioImageRepository.findMainImagesByUserIdWithPagination(userId, agentType, pageable);
 
         return PortfolioPageResponse.builder()
                 .content(page.getContent())
