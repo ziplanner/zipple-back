@@ -2,6 +2,7 @@ package com.zipple.module.mainpage;
 
 import com.zipple.common.utils.AgentIdBase64Util;
 import com.zipple.module.like.entity.AgentLikeRepository;
+import com.zipple.module.mainpage.domain.AgentMatchingDto;
 import com.zipple.module.mainpage.domain.AgentMatchingResponse;
 import com.zipple.module.mainpage.domain.DetailProfileResponse;
 import com.zipple.module.mainpage.domain.MatchingResponse;
@@ -19,9 +20,9 @@ import com.zipple.module.mypage.agent.portfolio.domain.PortfolioMainImage;
 import com.zipple.module.mypage.agent.portfolio.domain.PortfolioPageResponse;
 import com.zipple.module.mypage.agent.portfolio.domain.PortfolioProfile;
 import com.zipple.module.review.entity.ReviewRepository;
-import groovy.util.logging.Slf4j;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -60,9 +61,9 @@ public class MainPageService {
                 AgentUser agentUser = optionalAgentUser.get();
                 String agentSpecialty = AgentSpecialty.getDescriptionByAgentSpecialty(agentUser.getAgentSpecialty());
 
-                int likeCount = likeRepository.countByAgentUserId(userId);
-                int reviewCount = reviewRepository.countByAgentUser(agentUser);
-
+                Integer likeCount = likeRepository.countByAgentUserId(userId);
+                Integer reviewCount = reviewRepository.countByAgentUser(agentUser);
+                Double startRating = reviewRepository.findAverageStarCountByAgent(agentUser.getId());
                 AgentMatchingResponse agentMatchingResponse = AgentMatchingResponse.builder()
                         .agentId(agentIdUUIDUtil.encodeLong(userId))
                         .profileUrl(user.getProfile_image_url())
@@ -70,7 +71,8 @@ public class MainPageService {
                         .portfolioCount(portfolioCount)
                         .agentName(agentUser.getAgentName())
                         .title(agentUser.getIntroductionTitle())
-                        .startCount(likeCount)
+                        .starRating(startRating == null ? 0.0 : startRating)
+                        .likeCount(likeCount)
                         .reviewCount(reviewCount)
                         .singleHouseholdExpert(agentUser.getSingleHouseholdExpertRequest())
                         .build();
@@ -110,11 +112,12 @@ public class MainPageService {
                             .build();
                 })
                 .collect(Collectors.toList());
-
+        Double startRating = reviewRepository.findAverageStarCountByAgent(agentUser.getId());
         return DetailProfileResponse.builder()
                 .title(user.getNickname())
                 .externalLink(agentUser.getExternalLink())
                 .agentName(agentUser.getAgentName())
+                .starRating(startRating == null ? 0.0 : startRating)
                 .businessName(agentUser.getBusinessName())
                 .agentSpecialty(AgentSpecialty.getDescriptionByAgentSpecialty(agentUser.getAgentSpecialty()))
                 .agentRegistrationNumber(agentUser.getAgentRegistrationNumber())
@@ -141,6 +144,53 @@ public class MainPageService {
                 .totalPages(page.getTotalPages())
                 .currentPage(page.getNumber())
                 .isLast(page.isLast())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public MatchingResponse getMatchingCategory(String category, Pageable pageable) {
+        AgentSpecialty agentSpecialty = AgentSpecialty.getByDescription(category);
+
+        Page<AgentUser> agentUserPage = agentUserRepository.findByAgentSpecialty(agentSpecialty, pageable);
+        List<AgentUser> agentUsers = agentUserPage.getContent();
+        List<AgentMatchingResponse> matchingList = new ArrayList<>();
+
+        for (AgentUser agentUser : agentUsers) {
+            Long userId = agentUser.getId();
+            User user = userRepository.findById(userId).orElseThrow(EntityNotFoundException::new);
+            Integer portfolioCount = portfolioRepository.countByUserId(userId);
+            Integer likeCount = likeRepository.countByAgentUserId(userId);
+            Integer reviewCount = reviewRepository.countByAgentUser(agentUser);
+            Double startRating = 0.0;
+            try {
+                startRating = reviewRepository.findAverageStarCountByAgent(agentUser.getId());
+            } catch (Exception e) {
+                Throwable cause = e.getCause();
+                log.error(cause.getMessage(), cause);
+            }
+
+            AgentMatchingResponse agentMatchingResponse = AgentMatchingResponse.builder()
+                    .agentId(agentIdUUIDUtil.encodeLong(userId))
+                    .profileUrl(user.getProfile_image_url())
+                    .agentSpecialty(category)
+                    .portfolioCount(portfolioCount)
+                    .agentName(agentUser.getAgentName())
+                    .title(agentUser.getIntroductionTitle())
+                    .starRating(startRating)
+                    .likeCount(likeCount)
+                    .reviewCount(reviewCount)
+                    .singleHouseholdExpert(agentUser.getSingleHouseholdExpertRequest())
+                    .build();
+            matchingList.add(agentMatchingResponse);
+        }
+
+
+        return MatchingResponse.builder()
+                .matching(matchingList)
+                .totalElements(agentUserPage.getTotalElements())
+                .totalPages(agentUserPage.getTotalPages())
+                .currentPage(agentUserPage.getNumber())
+                .isLast(agentUserPage.isLast())
                 .build();
     }
 }

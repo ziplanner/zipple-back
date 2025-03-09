@@ -28,8 +28,11 @@ public class AgentMatchingResponse {
     @Schema(description = "자기소개 제목", example = "안녕하세요")
     private String title;
 
+    @Schema(description = "별점 평균", example = "3.5")
+    private Double starRating;
+
     @Schema(description = "좋아요 갯수", example = "4")
-    private Integer startCount;
+    private Integer likeCount;
 
     @Schema(description = "리뷰 갯수", example = "21")
     private Integer reviewCount;

@@ -1,5 +1,6 @@
 package com.zipple.module.like;
 
+import com.zipple.common.utils.AgentIdBase64Util;
 import com.zipple.common.utils.GetMember;
 import com.zipple.module.like.entity.AgentLike;
 import com.zipple.module.like.entity.AgentLikeRepository;
@@ -19,12 +20,14 @@ public class LikeService {
     private final GetMember getMember;
     private final AgentLikeRepository agentLikeRepository;
     private final AgentUserRepository agentUserRepository;
+    private final AgentIdBase64Util agentIdBase64Util;
 
     @Transactional
-    public void likeAgent(Long agentUserId) {
+    public void likeAgent(String agentUserId) {
         User user = getMember.getCurrentMember();
 
-        AgentUser agentUser = agentUserRepository.findById(agentUserId)
+        Long userId = agentIdBase64Util.decodeLong(agentUserId);
+        AgentUser agentUser = agentUserRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공인중개사입니다."));
 
         if (agentLikeRepository.existsByUserAndAgentUser(user, agentUser)) {
@@ -36,18 +39,19 @@ public class LikeService {
     }
 
     @Transactional
-    public void unlikeAgent(Long agentUserId) {
+    public void unlikeAgent(String agentUserId) {
         User user = getMember.getCurrentMember();
-
-        AgentUser agentUser = agentUserRepository.findById(agentUserId)
+        Long userId = agentIdBase64Util.decodeLong(agentUserId);
+        AgentUser agentUser = agentUserRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공인중개사입니다."));
 
         agentLikeRepository.deleteByUserAndAgentUser(user, agentUser);
     }
 
     @Transactional(readOnly = true)
-    public long getAgentLikeCount(Long agentUserId) {
-        AgentUser agentUser = agentUserRepository.findById(agentUserId)
+    public long getAgentLikeCount(String agentUserId) {
+        Long userId = agentIdBase64Util.decodeLong(agentUserId);
+        AgentUser agentUser = agentUserRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공인중개사입니다."));
 
         return agentLikeRepository.countByAgentUser(agentUser);

@@ -57,7 +57,21 @@ public class MainPageController {
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         PortfolioPageResponse portfolios = mainPageService.getAgentPortfolio(agentId, pageable);
-
         return ResponseEntity.ok(portfolios);
+    }
+
+    @Operation(summary = "공인 중개사 매칭 카테고리별 조회")
+    @GetMapping(value = "/matching/{category}")
+    public ResponseEntity<MatchingResponse> getAgentMatchingCategory(
+            @Parameter(name = "category", description = "공인 중개사 카테고리")
+            @PathVariable(value = "category") String category,
+            @Parameter(name = "page", description = "페이지 번호", example = "0")
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @Parameter(name = "size", description = "페이지 크기", example = "9")
+            @RequestParam(value = "size", defaultValue = "9") Integer size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        MatchingResponse matchingResponse = mainPageService.getMatchingCategory(category, pageable);
+        return ResponseEntity.ok(matchingResponse);
     }
 }

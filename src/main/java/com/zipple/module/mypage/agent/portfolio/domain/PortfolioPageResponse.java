@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Schema(description = "포트폴리오 데이터")
 public class PortfolioPageResponse {
-    @Schema(description = "포트폴리오 데이터 리스트", example = "[{...}, {...}]")
+    @Schema(description = "포트폴리오 데이터 리스트")
     private List<PortfolioMainImage> content;
 
     @Schema(description = "총 개수", example = "20")

@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
 
-    int countByUserId(long userId);
+    Integer countByUserId(long userId);
 
     List<Portfolio> findTop6ByUserIdOrderByCreatedAtDesc(Long userId);
 }
