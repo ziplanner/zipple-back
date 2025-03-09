@@ -1,5 +1,6 @@
 package com.zipple.module.mainpage;
 
+import com.zipple.module.mainpage.domain.DetailPortfolioResponse;
 import com.zipple.module.mainpage.domain.DetailProfileResponse;
 import com.zipple.module.mainpage.domain.MatchingResponse;
 import com.zipple.module.member.common.entity.category.AgentType;
@@ -60,11 +61,21 @@ public class MainPageController {
         return ResponseEntity.ok(portfolios);
     }
 
+    @Operation(summary = "공인 중개사 포트폴리오")
+    @GetMapping(value = "/portfolio/{portfolioId}/detail")
+    public ResponseEntity<DetailPortfolioResponse> getAgentPortfolioDetail(
+            @Parameter(name = "portfolioId", description = "중개사 상세 프로필에 대한 아이디")
+            @PathVariable(value = "portfolioId") Long portfolioId
+    ) {
+        DetailPortfolioResponse detailPortfolioResponse = mainPageService.getAgentPortfolioDetail(portfolioId);
+        return ResponseEntity.ok(detailPortfolioResponse);
+    }
+
     @Operation(summary = "공인 중개사 매칭 카테고리별 조회")
-    @GetMapping(value = "/matching/{category}")
+    @GetMapping(value = "/matching/category")
     public ResponseEntity<MatchingResponse> getAgentMatchingCategory(
             @Parameter(name = "category", description = "공인 중개사 카테고리")
-            @PathVariable(value = "category") String category,
+            @RequestParam(value = "category") String category,
             @Parameter(name = "page", description = "페이지 번호", example = "0")
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @Parameter(name = "size", description = "페이지 크기", example = "9")

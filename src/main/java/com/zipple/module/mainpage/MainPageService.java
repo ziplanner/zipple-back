@@ -2,10 +2,7 @@ package com.zipple.module.mainpage;
 
 import com.zipple.common.utils.AgentIdBase64Util;
 import com.zipple.module.like.entity.AgentLikeRepository;
-import com.zipple.module.mainpage.domain.AgentMatchingDto;
-import com.zipple.module.mainpage.domain.AgentMatchingResponse;
-import com.zipple.module.mainpage.domain.DetailProfileResponse;
-import com.zipple.module.mainpage.domain.MatchingResponse;
+import com.zipple.module.mainpage.domain.*;
 import com.zipple.module.member.common.entity.AgentUser;
 import com.zipple.module.member.common.entity.User;
 import com.zipple.module.member.common.entity.category.AgentSpecialty;
@@ -29,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -106,14 +104,18 @@ public class MainPageService {
                             .findFirst();
 
                     return PortfolioProfile.builder()
+                            .portfolioId(portfolio.getId())
                             .title(portfolio.getTitle())
                             .createdAt(portfolio.getCreatedAt().toString())
-                            .profileImage(mainImage.map(PortfolioImage::getImageUrl).toString())
+                            .portfolioImage(mainImage.map(PortfolioImage::getImageUrl).toString())
                             .build();
                 })
                 .collect(Collectors.toList());
+
         Double startRating = reviewRepository.findAverageStarCountByAgent(agentUser.getId());
         return DetailProfileResponse.builder()
+                .email(user.getEmail())
+                .profileUrl(user.getProfile_image_url())
                 .title(user.getNickname())
                 .externalLink(agentUser.getExternalLink())
                 .agentName(agentUser.getAgentName())
@@ -191,6 +193,27 @@ public class MainPageService {
                 .totalPages(agentUserPage.getTotalPages())
                 .currentPage(agentUserPage.getNumber())
                 .isLast(agentUserPage.isLast())
+                .build();
+    }
+
+    public DetailPortfolioResponse getAgentPortfolioDetail(Long portfolioId) {
+        Portfolio portfolio = portfolioRepository.findByIdWithImages(portfolioId)
+                .orElseThrow(() -> new EntityNotFoundException("포트폴리오를 찾을 수 없습니다. ID: " + portfolioId));
+
+        List<String> imageUrls = portfolio.getPortfolioImage().stream()
+                .sorted(Comparator.comparing(PortfolioImage::getIsMain).reversed())
+                .map(image -> Optional.ofNullable(image.getImageUrl()).orElse(""))
+                .toList();
+
+        String externalLink = Optional.ofNullable(portfolio.getUser().getAgentUser())
+                .map(AgentUser::getExternalLink)
+                .orElse("");
+
+        return DetailPortfolioResponse.builder()
+                .title(portfolio.getTitle())
+                .externalLink(externalLink)
+                .content(portfolio.getContent())
+                .portfolioList(imageUrls)
                 .build();
     }
 }

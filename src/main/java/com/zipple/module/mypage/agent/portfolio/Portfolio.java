@@ -33,6 +33,9 @@ public class Portfolio {
     @Column(nullable = false)
     private String title;
 
+    @Column(name = "content")
+    private String content;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "agent_type", nullable = false)
     private AgentType agentType;
