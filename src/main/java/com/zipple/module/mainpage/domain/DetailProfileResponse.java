@@ -38,6 +38,9 @@ public class DetailProfileResponse {
     @Schema(description = "대표 이름", example = "권동휘")
     private String ownerName;
 
+    @Schema(description = "별점 평균", example = "3.5")
+    private Double starRating;
+
     @Schema(description = "대표 연락처", example = "010-2213-0123")
     private String ownerContactNumber;
 

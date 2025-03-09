@@ -92,6 +92,6 @@ public class ReviewService {
         AgentUser agentUser = agentUserRepository.findById(agentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공인중개사입니다."));
 
-        return reviewRepository.findAverageStarCountByAgent(agentUser);
+        return 0.0;
     }
 }

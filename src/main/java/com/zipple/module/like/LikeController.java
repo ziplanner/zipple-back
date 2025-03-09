@@ -20,7 +20,7 @@ public class LikeController {
     @PostMapping("/{agentId}")
     public ResponseEntity<String> likeAgent(
             @Parameter(name = "agentId", description = "좋아요 추가 받는 중개사")
-            @PathVariable(value = "agentId") Long agentId
+            @PathVariable(value = "agentId") String agentId
     ) {
         likeService.likeAgent(agentId);
         return ResponseEntity.ok("좋아요가 추가되었습니다.");
@@ -30,7 +30,7 @@ public class LikeController {
     @DeleteMapping("/{agentId}")
     public ResponseEntity<String> unlikeAgent(
             @Parameter(name = "agentId", description = "좋아요 취소 받는 중개사")
-            @PathVariable(value = "agentId") Long agentId
+            @PathVariable(value = "agentId") String agentId
     ) {
         likeService.unlikeAgent(agentId);
         return ResponseEntity.ok("좋아요가 취소되었습니다.");
@@ -40,7 +40,7 @@ public class LikeController {
     @GetMapping("/{agentId}/count")
     public ResponseEntity<Long> getAgentLikeCount(
             @Parameter(name = "agentId", description = "좋아요 갯수")
-            @PathVariable(value = "agentId") Long agentId
+            @PathVariable(value = "agentId") String agentId
     ) {
         return ResponseEntity.ok(likeService.getAgentLikeCount(agentId));
     }

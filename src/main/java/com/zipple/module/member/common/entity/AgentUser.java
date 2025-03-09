@@ -4,10 +4,7 @@ import com.zipple.module.like.entity.AgentLike;
 import com.zipple.module.member.common.entity.category.AgentType;
 import com.zipple.module.member.common.entity.category.AgentSpecialty;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +12,8 @@ import java.util.List;
 @Entity
 @Table(name = "agent_users")
 @Builder
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class AgentUser {
@@ -36,6 +34,7 @@ public class AgentUser {
     private AgentType agentType;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(255)")
     private AgentSpecialty agentSpecialty;
 
     @Column(name = "business_name")

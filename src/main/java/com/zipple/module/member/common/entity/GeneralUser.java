@@ -2,15 +2,13 @@ package com.zipple.module.member.common.entity;
 
 import com.zipple.module.member.common.entity.category.HousingType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "general_users")
 @Builder
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class GeneralUser {
