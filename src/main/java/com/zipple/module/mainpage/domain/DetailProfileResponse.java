@@ -17,6 +17,12 @@ import java.util.List;
 @Schema(name = "공인중개사 상세 프로필 요청 데이터")
 public class DetailProfileResponse {
 
+    @Schema(description = "이메일", example = "hocci@naver.com")
+    private String email;
+
+    @Schema(description = "프로필 이미지", example = "https://image...")
+    private String profileUrl;
+
     @Schema(description = "포트폴리오 제목", example = "포트폴리오 제목")
     private String title;
 

@@ -24,7 +24,7 @@ public class ReviewController {
     @PostMapping("/{agentId}")
     public ResponseEntity<Review> createReview(
             @Parameter(name = "agentId", description = "리뷰 달릴 중개사")
-            @PathVariable(value = "agentId") Long agentId,
+            @PathVariable(value = "agentId") String agentId,
             @RequestBody ReviewRequest reviewRequest
     ) {
         return ResponseEntity.ok(reviewService.createReview(agentId, reviewRequest));
@@ -34,8 +34,8 @@ public class ReviewController {
     @Operation(summary = "리뷰 수정", description = "작성한 리뷰를 수정합니다.")
     @PutMapping("/{reviewId}")
     public ResponseEntity<Review> updateReview(
-            @Parameter(name = "agentId", description = "리뷰 달릴 중개사")
-            @PathVariable(value = "agentId") Long reviewId,
+            @Parameter(name = "reviewId", description = "리뷰 달릴 중개사")
+            @PathVariable(value = "reviewId") Long reviewId,
             @RequestBody ReviewRequest reviewRequest
             ) {
         return ResponseEntity.ok(reviewService.updateReview(reviewId, reviewRequest));
@@ -43,14 +43,17 @@ public class ReviewController {
 
     @Operation(summary = "리뷰 삭제", description = "작성한 리뷰를 삭제합니다.")
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<String> deleteReview(@PathVariable(value = "agentId") Long reviewId) {
+    public ResponseEntity<String> deleteReview(
+            @Parameter(name = "reviewId", description = "리뷰 달릴 중개사")
+            @PathVariable(value = "reviewId") Long reviewId
+    ) {
         reviewService.deleteReview(reviewId);
         return ResponseEntity.ok("리뷰가 삭제되었습니다.");
     }
 
     @Operation(summary = "공인중개사 리뷰 조회", description = "특정 공인중개사의 모든 리뷰를 조회합니다.")
     @GetMapping("/{agentId}")
-    public ResponseEntity<List<ReviewResponse>> getReviewsByAgent(@PathVariable(value = "agentId") Long agentId) {
+    public ResponseEntity<List<ReviewResponse>> getReviewsByAgent(@PathVariable(value = "agentId") String agentId) {
         return ResponseEntity.ok(reviewService.getReviewsByAgent(agentId));
     }
 

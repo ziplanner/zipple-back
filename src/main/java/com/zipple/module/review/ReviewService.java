@@ -1,5 +1,6 @@
 package com.zipple.module.review;
 
+import com.zipple.common.utils.AgentIdBase64Util;
 import com.zipple.common.utils.GetMember;
 import com.zipple.module.member.common.entity.AgentUser;
 import com.zipple.module.member.common.entity.User;
@@ -25,11 +26,13 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final AgentUserRepository agentUserRepository;
     private final GetMember getMember;
+    private final AgentIdBase64Util agentIdBase64Util;
 
     @Transactional
-    public Review createReview(Long agentId, ReviewRequest reviewRequest) {
+    public Review createReview(String agentId, ReviewRequest reviewRequest) {
         User user = getMember.getCurrentMember();
-        AgentUser agentUser = agentUserRepository.findById(agentId)
+        Long decodeAgentId = agentIdBase64Util.decodeLong(agentId);
+        AgentUser agentUser = agentUserRepository.findById(decodeAgentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공인중개사입니다."));
 
         String content = reviewRequest.getContent();
@@ -71,8 +74,9 @@ public class ReviewService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReviewResponse> getReviewsByAgent(Long agentId) {
-        AgentUser agentUser = agentUserRepository.findById(agentId)
+    public List<ReviewResponse> getReviewsByAgent(String agentId) {
+        Long decodeAgentId = agentIdBase64Util.decodeLong(agentId);
+        AgentUser agentUser = agentUserRepository.findById(decodeAgentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공인중개사입니다."));
 
         return reviewRepository.findByAgentUser(agentUser).stream()
