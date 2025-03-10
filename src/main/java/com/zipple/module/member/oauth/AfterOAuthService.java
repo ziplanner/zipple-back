@@ -3,6 +3,7 @@ package com.zipple.module.member.oauth;
 import com.zipple.common.utils.GetMember;
 import com.zipple.module.member.common.entity.AgentUser;
 import com.zipple.module.member.common.entity.GeneralUser;
+import com.zipple.module.member.common.entity.category.AgentSpecialty;
 import com.zipple.module.member.common.entity.category.AgentType;
 import com.zipple.module.member.common.entity.category.HousingType;
 import com.zipple.module.member.oauth.model.AgentUserRequest;
@@ -48,6 +49,7 @@ public class AfterOAuthService {
 
     @Transactional
     public void agentRegisters(AgentUserRequest agentUserRequest, List<MultipartFile> agentCertificationDocuments, MultipartFile agentImage) {
+        AgentSpecialty agentSpecialty = AgentSpecialty.getByDescription(agentUserRequest.getAgentSpecialty());
         AgentUser agentUser = AgentUser.builder()
                 .user(getMember.getCurrentMember())
                 .agentType(AgentType.fromValue(agentUserRequest.getAgentType()))
@@ -69,6 +71,11 @@ public class AfterOAuthService {
                 .externalLink(
                         (agentUserRequest.getExternalLink() != null) ? agentUserRequest.getExternalLink() : ""
                 )
+                .introductionTitle(agentUserRequest.getIntroductionTitle())
+                .introductionContent(agentUserRequest.getIntroductionContent())
+                .agentName(agentUserRequest.getAgentName())
+                .agentContactNumber(agentUserRequest.getAgentContactNumber())
+                .agentSpecialty(agentSpecialty)
                 .mandatoryTerms(true)
                 .optionalTerms(agentUserRequest.getMarketingNotificationTerms())
                 .build();

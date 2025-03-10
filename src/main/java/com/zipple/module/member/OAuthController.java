@@ -5,6 +5,7 @@ import com.zipple.module.member.oauth.model.AccessTokenRenewResponse;
 import com.zipple.module.member.oauth.model.AuthLoginResponse;
 import com.zipple.module.member.oauth.model.RoleResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,8 +60,11 @@ public class OAuthController {
 
     @Operation(summary = "액세스 토큰 갱신")
     @PostMapping(value = "/renew")
-    public ResponseEntity<AccessTokenRenewResponse> renewToken() {
-        AccessTokenRenewResponse accessTokenRenewResponse = oAuthLoginService.renewAccessToken();
+    public ResponseEntity<AccessTokenRenewResponse> renewToken(
+            @Parameter(name = "refreshToken", description = "액세스 토큰 갱신을 위해")
+            @RequestParam("refreshToken") String refreshToken
+    ) {
+        AccessTokenRenewResponse accessTokenRenewResponse = oAuthLoginService.renewAccessToken(refreshToken);
         return ResponseEntity.ok(accessTokenRenewResponse);
     }
 

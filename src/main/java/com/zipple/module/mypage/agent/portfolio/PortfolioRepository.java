@@ -1,5 +1,6 @@
 package com.zipple.module.mypage.agent.portfolio;
 
+import com.zipple.module.member.common.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,4 +23,6 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
             "LEFT JOIN FETCH p.portfolioImage pi " +
             "WHERE p.id = :portfolioId")
     Optional<Portfolio> findByIdWithUserAndImages(@Param("portfolioId") Long portfolioId);
+
+    List<Portfolio> findByUser(User user);
 }

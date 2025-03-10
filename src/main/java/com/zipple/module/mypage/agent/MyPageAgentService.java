@@ -96,20 +96,22 @@ public class MyPageAgentService {
     }
 
     @Transactional
-    public void createLicensedPortfolio(PortfolioImageList portfolioImages, String portfolioTitle, AgentType agentType) {
+    public void createLicensedPortfolio(PortfolioImageList portfolioImages, String portfolioTitle, String portfolioContent) {
         User currentUser = getMember.getCurrentMember();
-
+        AgentUser agentUser = currentUser.getAgentUser();
+        AgentType agentType = agentUser.getAgentType();
         Portfolio portfolio = Portfolio.builder()
                 .user(currentUser)
                 .title(portfolioTitle)
                 .agentType(agentType)
+                .content(portfolioContent)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
         List<PortfolioImage> savedImages = new ArrayList<>();
         String baseDir = "/home/ubuntu/zipple/upload/";
-        String baseUrl = "http://44.203.190.167:8081";
+        String baseUrl = "https://zipple.co.kr:8081";
 
         for (int i = 0; i < portfolioImages.getPortfolioImages().size(); i++) {
             MultipartFile image = portfolioImages.getPortfolioImages().get(i);
@@ -120,7 +122,7 @@ public class MyPageAgentService {
                 File destFile = new File(filePath);
                 image.transferTo(destFile);
 
-                String imageUrl = baseUrl + "/zipple/" + baseDir + fileName;
+                String imageUrl = baseUrl + "/zipple" + baseDir + fileName;
 
                 PortfolioImage portfolioImage = PortfolioImage.builder()
                         .portfolio(portfolio)
@@ -140,10 +142,11 @@ public class MyPageAgentService {
         portfolioRepository.save(portfolio);
     }
     @Transactional(readOnly = true)
-    public PortfolioPageResponse getLicensedAgentPortfolios(Pageable pageable, AgentType agentType) {
+    public PortfolioPageResponse getLicensedAgentPortfolios(Pageable pageable) {
         User user = getMember.getCurrentMember();
-        long userId = user.getId();
-        Page<PortfolioMainImage> page = portfolioImageRepository.findMainImagesWithPagination(userId, pageable, agentType);
+        Long userId = user.getId();
+        AgentUser agentUser = agentUserRepository.findByUserId(userId);
+        Page<PortfolioMainImage> page = portfolioImageRepository.findMainImagesWithPagination(userId, pageable, agentUser.getAgentType());
 
         return PortfolioPageResponse.builder()
                 .content(page.getContent())

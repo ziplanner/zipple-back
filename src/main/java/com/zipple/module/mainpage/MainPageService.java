@@ -16,6 +16,8 @@ import com.zipple.module.mypage.agent.portfolio.PortfolioRepository;
 import com.zipple.module.mypage.agent.portfolio.domain.PortfolioMainImage;
 import com.zipple.module.mypage.agent.portfolio.domain.PortfolioPageResponse;
 import com.zipple.module.mypage.agent.portfolio.domain.PortfolioProfile;
+import com.zipple.module.review.domain.ReviewResponse;
+import com.zipple.module.review.entity.Review;
 import com.zipple.module.review.entity.ReviewRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -99,27 +101,45 @@ public class MainPageService {
 
         List<PortfolioProfile> portfolioProfiles = portfolios.stream()
                 .map(portfolio -> {
-                    Optional<PortfolioImage> mainImage = portfolio.getPortfolioImage().stream()
+                    String mainImageUrl = portfolio.getPortfolioImage().stream()
                             .filter(PortfolioImage::getIsMain)
-                            .findFirst();
+                            .map(PortfolioImage::getImageUrl)
+                            .findFirst()
+                            .orElse("");
 
                     return PortfolioProfile.builder()
                             .portfolioId(portfolio.getId())
                             .title(portfolio.getTitle())
                             .createdAt(portfolio.getCreatedAt().toString())
-                            .portfolioImage(mainImage.map(PortfolioImage::getImageUrl).toString())
+                            .portfolioImage(mainImageUrl)
                             .build();
                 })
                 .collect(Collectors.toList());
 
-        Double startRating = reviewRepository.findAverageStarCountByAgent(agentUser.getId());
+        List<Review> reviews = reviewRepository.findTop6ByAgentUserIdOrderByCreatedAtDesc(agentUser.getId());
+
+        List<ReviewResponse> reviewResponses = reviews.stream().map(review ->
+                ReviewResponse.builder()
+                        .reviewId(review.getId())
+                        .profileUrl(Optional.ofNullable(review.getUser().getProfile_image_url()).orElse(""))
+                        .nickname(Optional.ofNullable(review.getUser().getNickname()).orElse(""))
+                        .starCount(review.getStarCount())
+                        .content(Optional.ofNullable(review.getContent()).orElse(""))
+                        .createdAt(review.getCreatedAt().toString())
+                        .updatedAt(review.getUpdatedAt().toString())
+                        .build()
+        ).collect(Collectors.toList());
+
+
+        Double startRating = Optional.ofNullable(reviewRepository.findAverageStarCountByAgent(agentUser.getId())).orElse(0.0);
+
         return DetailProfileResponse.builder()
                 .email(user.getEmail())
-                .profileUrl(user.getProfile_image_url())
+                .profileUrl(Optional.ofNullable(user.getProfile_image_url()).orElse(""))
                 .title(user.getNickname())
-                .externalLink(agentUser.getExternalLink())
+                .externalLink(Optional.ofNullable(agentUser.getExternalLink()).orElse(""))
                 .agentName(agentUser.getAgentName())
-                .starRating(startRating == null ? 0.0 : startRating)
+                .starRating(startRating)
                 .businessName(agentUser.getBusinessName())
                 .agentSpecialty(AgentSpecialty.getDescriptionByAgentSpecialty(agentUser.getAgentSpecialty()))
                 .agentRegistrationNumber(agentUser.getAgentRegistrationNumber())
@@ -127,6 +147,7 @@ public class MainPageService {
                 .ownerContactNumber(agentUser.getOwnerContactNumber())
                 .officeAddress(agentUser.getOfficeAddress())
                 .portfolios(portfolioProfiles)
+                .reviews(reviewResponses)
                 .build();
     }
 
@@ -173,15 +194,15 @@ public class MainPageService {
 
             AgentMatchingResponse agentMatchingResponse = AgentMatchingResponse.builder()
                     .agentId(agentIdUUIDUtil.encodeLong(userId))
-                    .profileUrl(user.getProfile_image_url())
+                    .profileUrl(Optional.ofNullable(user.getProfile_image_url()).orElse(""))
                     .agentSpecialty(category)
                     .portfolioCount(portfolioCount)
                     .agentName(agentUser.getAgentName())
-                    .title(agentUser.getIntroductionTitle())
+                    .title(Optional.ofNullable(agentUser.getIntroductionTitle()).orElse(""))
                     .starRating(startRating)
                     .likeCount(likeCount)
                     .reviewCount(reviewCount)
-                    .singleHouseholdExpert(agentUser.getSingleHouseholdExpertRequest())
+                    .singleHouseholdExpert(Optional.ofNullable(agentUser.getSingleHouseholdExpertRequest()).orElse(false))
                     .build();
             matchingList.add(agentMatchingResponse);
         }
@@ -212,7 +233,7 @@ public class MainPageService {
         return DetailPortfolioResponse.builder()
                 .title(portfolio.getTitle())
                 .externalLink(externalLink)
-                .content(portfolio.getContent())
+                .content(Optional.ofNullable(portfolio.getContent()).orElse(""))
                 .portfolioList(imageUrls)
                 .build();
     }

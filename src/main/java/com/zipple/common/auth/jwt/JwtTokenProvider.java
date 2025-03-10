@@ -40,8 +40,8 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String extractSubject(String accessToken) {
-        Claims claims = parseClaims(accessToken);
+    public String extractSubject(String token) {
+        Claims claims = parseClaims(token);
         return claims.getSubject();
     }
 

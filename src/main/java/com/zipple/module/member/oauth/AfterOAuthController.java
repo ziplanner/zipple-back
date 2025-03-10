@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Tag(name = "소셜 로그인")
-@Hidden
 @RestController
 @RequestMapping("/api/v1/register")
 @RequiredArgsConstructor
