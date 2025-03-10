@@ -21,6 +21,9 @@ public class PortfolioMainImage {
     @Schema(description = "포트폴리오 제목", example = "Modern Architecture")
     private String portfolioTitle;
 
+    @Schema(description = "포트폴리오 내용", example = "사랑해요")
+    private String portfolioContent;
+
     @Schema(description = "대표 이미지 URL", example = "http://localhost:8081/images/architecture.jpg")
     private String mainImageUrl;
 

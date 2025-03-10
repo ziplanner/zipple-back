@@ -7,13 +7,20 @@ import com.zipple.common.oauth.OAuthInfoResponse;
 import com.zipple.common.oauth.OAuthLoginParams;
 import com.zipple.common.oauth.RequestOAuthInfoService;
 import com.zipple.common.utils.GetMember;
+import com.zipple.module.like.entity.AgentLikeRepository;
 import com.zipple.module.member.common.entity.User;
 import com.zipple.module.member.common.entity.category.AgentType;
+import com.zipple.module.member.common.repository.AgentUserRepository;
+import com.zipple.module.member.common.repository.GeneralUserRepository;
 import com.zipple.module.member.common.repository.UserRepository;
 import com.zipple.module.member.email.model.UserType;
 import com.zipple.module.member.oauth.model.AccessTokenRenewResponse;
 import com.zipple.module.member.oauth.model.AuthLoginResponse;
 import com.zipple.module.member.oauth.model.RoleResponse;
+import com.zipple.module.mypage.agent.portfolio.Portfolio;
+import com.zipple.module.mypage.agent.portfolio.PortfolioImageRepository;
+import com.zipple.module.mypage.agent.portfolio.PortfolioRepository;
+import com.zipple.module.review.entity.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,8 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -77,6 +87,8 @@ public class OAuthLoginService {
                 .profile_image_url(oAuthInfoResponse.getProfile_image_url())
                 .birthday(oAuthInfoResponse.getBirthday())
                 .oAuthProvider(oAuthInfoResponse.getOAuthProvider())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
         return userRepository.save(user).getId();
     }
@@ -185,9 +197,41 @@ public class OAuthLoginService {
         }
     }
 
+    private final PortfolioRepository portfolioRepository;
+    private final PortfolioImageRepository portfolioImageRepository;
+    private final ReviewRepository reviewRepository;
+    private final AgentLikeRepository agentLikeRepository;
+    private final GeneralUserRepository  generalUserRepository;
+    private final AgentUserRepository agentUserRepository;
+
     private void deleteUserFromDatabase(Long userId) {
-        userRepository.deleteById(userId);
-        log.info("사용자 ID {}의 계정이 삭제되었습니다.", userId);
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new IllegalArgumentException("해당 ID의 사용자가 존재하지 않습니다.");
+        }
+
+        User user = optionalUser.get();
+
+        List<Portfolio> portfolios = portfolioRepository.findByUser(user);
+        for (Portfolio portfolio : portfolios) {
+            portfolioImageRepository.deleteAll(portfolio.getPortfolioImage());
+        }
+        portfolioRepository.deleteAll(portfolios);
+
+        reviewRepository.deleteAllByUser(user);
+
+        agentLikeRepository.deleteAllByUser(user);
+        agentLikeRepository.deleteAllByAgentUser(user.getAgentUser());
+
+        if (user.getGeneralUser() != null) {
+            generalUserRepository.delete(user.getGeneralUser());
+        }
+        if (user.getAgentUser() != null) {
+            agentUserRepository.delete(user.getAgentUser());
+        }
+
+        userRepository.delete(user);
+        log.info("사용자 ID {}의 계정 및 모든 연관 데이터를 삭제했습니다.", userId);
     }
 
     private void deleteKakaoAccessToken(Long userId) {
@@ -237,14 +281,15 @@ public class OAuthLoginService {
         return user.getId();
     }
 
-    public AccessTokenRenewResponse renewAccessToken() {
-        Long userId = userId();
-        String refreshToken = getServiceRefreshToken(userId);
-        if (refreshToken == null) {
+    public AccessTokenRenewResponse renewAccessToken(String refreshToken) {
+        String userId = jwtTokenProvider.extractSubject(refreshToken);
+        String storedRefreshToken = getServiceRefreshToken(Long.parseLong(userId));
+
+        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             return new AccessTokenRenewResponse(null, true);
         }
 
-        String newAccessToken = jwtTokenProvider.generate(userId.toString(), new Date(System.currentTimeMillis() + 3600000));
+        String newAccessToken = jwtTokenProvider.generate(userId, new Date(System.currentTimeMillis() + 3600000));
         return new AccessTokenRenewResponse(newAccessToken, false);
     }
 

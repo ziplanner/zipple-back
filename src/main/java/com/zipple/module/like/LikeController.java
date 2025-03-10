@@ -1,5 +1,6 @@
 package com.zipple.module.like;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterStyle;
@@ -36,6 +37,7 @@ public class LikeController {
         return ResponseEntity.ok("좋아요가 취소되었습니다.");
     }
 
+    @Hidden
     @Operation(summary = "좋아요 갯수")
     @GetMapping("/{agentId}/count")
     public ResponseEntity<Long> getAgentLikeCount(

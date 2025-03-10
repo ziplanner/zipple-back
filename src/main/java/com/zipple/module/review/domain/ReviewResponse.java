@@ -21,6 +21,9 @@ public class ReviewResponse {
     @Schema(description = "닉네임", example = "짱구")
     private String nickname;
 
+    @Schema(description = "별점", example = "4")
+    private Integer starCount;
+
     @Schema(description = "내용", example = "너무 좋은 사람 권수연")
     private String content;
 

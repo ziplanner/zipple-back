@@ -1,6 +1,7 @@
 package com.zipple.module.review.entity;
 
 import com.zipple.module.member.common.entity.AgentUser;
+import com.zipple.module.member.common.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +20,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Integer countByAgentUser(AgentUser agentUser);
 
+    List<Review> findTop6ByAgentUserIdOrderByCreatedAtDesc(Long agentId);
+
+    void deleteAllByUser(User user);
 }

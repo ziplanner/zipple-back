@@ -60,15 +60,12 @@ public class MyPageAgentController {
     @Operation(summary = "포트폴리오 조회")
     @GetMapping(value = "/portfolio")
     public ResponseEntity<PortfolioPageResponse> getLicensedAgentPortfolio(
-            @Parameter(name = "agentType")
-            @RequestParam(value = "agentType") String agentType,
             @Parameter(name = "page")
             @RequestParam(value = "page", defaultValue = "0") int page,
             @Parameter(name = "size")
             @RequestParam(value = "size", defaultValue = "9") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        AgentType type = AgentType.fromValue(agentType);
-        PortfolioPageResponse portfolios = myPageAgentService.getLicensedAgentPortfolios(pageable, type);
+        PortfolioPageResponse portfolios = myPageAgentService.getLicensedAgentPortfolios(pageable);
         return ResponseEntity.ok(portfolios);
     }
 
@@ -79,13 +76,12 @@ public class MyPageAgentController {
     public ResponseEntity<String> createLicensedAgentPortfolio(
             @Parameter(name = "portfolioTitle", description = "포트폴리오 제목")
             @RequestParam(value = "portfolioTitle") String portfolioTitle,
-            @Parameter(name = "agentType", description = "소속 또는 개업 (BUSINESS_AGENT, AFFILIATED_AGENT)")
-            @RequestParam(value = "agentType") String agentType,
+            @Parameter(name = "portfolioContent", description = "포트폴리오 내용")
+            @RequestParam(value = "portfolioContent") String portfolioContent,
             @Parameter(name = "portfolioImages", description = "포트폴리오 사진 리스트로 받을거에요")
             @ModelAttribute PortfolioImageList portfolioImages
             ) {
-        AgentType type = AgentType.fromValue(agentType);
-        myPageAgentService.createLicensedPortfolio(portfolioImages, portfolioTitle, type);
+        myPageAgentService.createLicensedPortfolio(portfolioImages, portfolioTitle, portfolioContent);
         return ResponseEntity.ok("포트폴리오 생성 완료");
     }
 
