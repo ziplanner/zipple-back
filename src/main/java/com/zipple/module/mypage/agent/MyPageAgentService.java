@@ -3,6 +3,7 @@ package com.zipple.module.mypage.agent;
 import com.zipple.common.utils.GetMember;
 import com.zipple.module.member.common.entity.AgentUser;
 import com.zipple.module.member.common.entity.User;
+import com.zipple.module.member.common.entity.category.AgentSpecialty;
 import com.zipple.module.member.common.entity.category.AgentType;
 import com.zipple.module.member.common.repository.AgentUserRepository;
 import com.zipple.module.member.common.repository.UserRepository;
@@ -164,10 +165,12 @@ public class MyPageAgentService {
         AgentUser agentUser = agentUserRepository.findById(user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("공인중개사 정보가 존재하지 않습니다."));
 
+        String agentSpecialty = AgentSpecialty.getDescriptionByAgentSpecialty(agentUser.getAgentSpecialty());
+
         return MyPageAgentAllResponse.builder()
                 .email(user.getEmail())
-                .agentType(agentUser.getAgentType())
-                .agentSpecialty(agentUser.getAgentSpecialty())
+                .agentType(agentUser.getAgentType().getDescription())
+                .agentSpecialty(agentSpecialty)
                 .businessName(agentUser.getBusinessName())
                 .agentRegistrationNumber(agentUser.getAgentRegistrationNumber())
                 .primaryContactNumber(agentUser.getPrimaryContactNumber())

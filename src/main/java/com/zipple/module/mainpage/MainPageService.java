@@ -184,12 +184,10 @@ public class MainPageService {
             Integer portfolioCount = portfolioRepository.countByUserId(userId);
             Integer likeCount = likeRepository.countByAgentUserId(userId);
             Integer reviewCount = reviewRepository.countByAgentUser(agentUser);
-            Double startRating = 0.0;
-            try {
-                startRating = reviewRepository.findAverageStarCountByAgent(agentUser.getId());
-            } catch (Exception e) {
-                Throwable cause = e.getCause();
-                log.error(cause.getMessage(), cause);
+
+            Double starRating = reviewRepository.findAverageStarCountByAgent(agentUser.getId());
+            if (starRating == null) {
+                starRating = 0.0;
             }
 
             AgentMatchingResponse agentMatchingResponse = AgentMatchingResponse.builder()
@@ -199,7 +197,7 @@ public class MainPageService {
                     .portfolioCount(portfolioCount)
                     .agentName(agentUser.getAgentName())
                     .title(Optional.ofNullable(agentUser.getIntroductionTitle()).orElse(""))
-                    .starRating(startRating)
+                    .starRating(starRating)
                     .likeCount(likeCount)
                     .reviewCount(reviewCount)
                     .singleHouseholdExpert(Optional.ofNullable(agentUser.getSingleHouseholdExpertRequest()).orElse(false))

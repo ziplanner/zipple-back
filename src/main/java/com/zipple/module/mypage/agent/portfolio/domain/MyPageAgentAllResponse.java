@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 public class MyPageAgentAllResponse {
 
     private String email;
-    private AgentType agentType;
-    private AgentSpecialty agentSpecialty;
+    private String agentType;
+    private String agentSpecialty;
     private String businessName;
     private String agentRegistrationNumber;
     private String primaryContactNumber;

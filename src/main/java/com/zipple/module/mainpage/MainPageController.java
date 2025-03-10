@@ -46,7 +46,7 @@ public class MainPageController {
         return ResponseEntity.ok(detailProfileResponse);
     }
 
-    @Operation(summary = "공인 중개사 포트폴리오")
+    @Operation(summary = "공인 중개사 포트폴리오 페이징")
     @GetMapping(value = "/portfolio/{agentId}")
     public ResponseEntity<PortfolioPageResponse> getAgentPortfolio(
             @Parameter(name = "agentId", description = "중개사 상세 프로필에 대한 아이디")
@@ -59,6 +59,14 @@ public class MainPageController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         PortfolioPageResponse portfolios = mainPageService.getAgentPortfolio(agentId, pageable);
         return ResponseEntity.ok(portfolios);
+    }
+
+    @Operation(summary = "공인 중개사 리뷰 페이징")
+    @GetMapping(value = "/review/{agentId}")
+    public ResponseEntity<ReviewPageResponse> getAgentReview(
+
+    ) {
+
     }
 
     @Operation(summary = "공인 중개사 포트폴리오")
