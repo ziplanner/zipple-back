@@ -2,6 +2,8 @@ package com.zipple.module.review.entity;
 
 import com.zipple.module.member.common.entity.AgentUser;
 import com.zipple.module.member.common.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,4 +25,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findTop6ByAgentUserIdOrderByCreatedAtDesc(Long agentId);
 
     void deleteAllByUser(User user);
+
+    @Query("SELECT r FROM Review r WHERE r.agentUser = :agentUser ORDER BY r.createdAt DESC")
+    Page<Review> findPagedReviewsByAgentUser(@Param("agentUser") AgentUser agentUser, Pageable pageable);
 }

@@ -112,7 +112,7 @@ public class MyPageAgentService {
 
         List<PortfolioImage> savedImages = new ArrayList<>();
         String baseDir = "/home/ubuntu/zipple/upload/";
-        String baseUrl = "https://zipple.co.kr:8081";
+        String baseUrl = "https://api.zipple.co.kr";
 
         for (int i = 0; i < portfolioImages.getPortfolioImages().size(); i++) {
             MultipartFile image = portfolioImages.getPortfolioImages().get(i);

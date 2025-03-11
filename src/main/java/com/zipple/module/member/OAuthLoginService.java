@@ -6,8 +6,10 @@ import com.zipple.common.auth.jwt.token.AuthTokensGenerator;
 import com.zipple.common.oauth.OAuthInfoResponse;
 import com.zipple.common.oauth.OAuthLoginParams;
 import com.zipple.common.oauth.RequestOAuthInfoService;
+import com.zipple.common.utils.AgentIdBase64Util;
 import com.zipple.common.utils.GetMember;
 import com.zipple.module.like.entity.AgentLikeRepository;
+import com.zipple.module.member.common.entity.AgentUser;
 import com.zipple.module.member.common.entity.User;
 import com.zipple.module.member.common.entity.category.AgentType;
 import com.zipple.module.member.common.repository.AgentUserRepository;
@@ -31,10 +33,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -54,6 +53,15 @@ public class OAuthLoginService {
     private final RestTemplate restTemplate;
     private final GetMember getMember;
     private final JwtTokenProvider jwtTokenProvider;
+
+    private final PortfolioRepository portfolioRepository;
+    private final PortfolioImageRepository portfolioImageRepository;
+    private final ReviewRepository reviewRepository;
+    private final AgentLikeRepository agentLikeRepository;
+    private final GeneralUserRepository  generalUserRepository;
+    private final AgentUserRepository agentUserRepository;
+
+    private final AgentIdBase64Util agentIdBase64Util;
 
     public AuthLoginResponse login(OAuthLoginParams params) {
         Map<String, Object> response = requestOAuthInfoService.request(params);
@@ -197,13 +205,6 @@ public class OAuthLoginService {
         }
     }
 
-    private final PortfolioRepository portfolioRepository;
-    private final PortfolioImageRepository portfolioImageRepository;
-    private final ReviewRepository reviewRepository;
-    private final AgentLikeRepository agentLikeRepository;
-    private final GeneralUserRepository  generalUserRepository;
-    private final AgentUserRepository agentUserRepository;
-
     private void deleteUserFromDatabase(Long userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
@@ -297,22 +298,28 @@ public class OAuthLoginService {
     public RoleResponse getRole() {
         User user = getMember.getCurrentMember();
         return new RoleResponse(
-                determineUserType(user).toString(), user.getNickname()
+                agentIdBase64Util.encodeLong(user.getId()),
+                determineUserType(user),
+                user.getNickname(),
+                user.getProfile_image_url()
         );
     }
 
-    private UserType determineUserType(User user) {
-        if(user.getGeneralUser() != null) {
-            return UserType.GENERAL;
+    private String determineUserType(User user) {
+        if (user == null) {
+            return UserType.NOT_REGISTERED.getDescription();
         }
-        if (user.getAgentUser() != null) {
-            AgentType agentType = user.getAgentUser().getAgentType();
-            if (agentType == AgentType.BUSINESS_AGENT) {
-                return UserType.BUSINESS_AGENT;
-            } else if (agentType == AgentType.AFFILIATED_AGENT) {
-                return UserType.AFFILIATED_AGENT;
-            }
+
+        if (user.getGeneralUser() != null) {
+            return UserType.GENERAL.getDescription();
         }
-        return UserType.NOT_REGISTERED;
+
+        return switch (Objects.requireNonNull(Optional.ofNullable(user.getAgentUser())
+                .map(AgentUser::getAgentType)
+                .orElse(null))) {
+            case BUSINESS_AGENT -> UserType.BUSINESS_AGENT.getDescription();
+            case AFFILIATED_AGENT -> UserType.AFFILIATED_AGENT.getDescription();
+            default -> UserType.NOT_REGISTERED.getDescription();
+        };
     }
 }

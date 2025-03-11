@@ -45,6 +45,7 @@ public class MainPageService {
     private final AgentLikeRepository likeRepository;
     private final ReviewRepository reviewRepository;
     private final AgentIdBase64Util agentIdUUIDUtil;
+    private final AgentLikeRepository agentLikeRepository;
 
     @Transactional(readOnly = true)
     public MatchingResponse getMatchingProfile(Pageable pageable) {
@@ -172,46 +173,55 @@ public class MainPageService {
 
     @Transactional(readOnly = true)
     public MatchingResponse getMatchingCategory(String category, Pageable pageable) {
-        AgentSpecialty agentSpecialty = AgentSpecialty.getByDescription(category);
+        Page<User> userPage;
 
-        Page<AgentUser> agentUserPage = agentUserRepository.findByAgentSpecialty(agentSpecialty, pageable);
-        List<AgentUser> agentUsers = agentUserPage.getContent();
-        List<AgentMatchingResponse> matchingList = new ArrayList<>();
-
-        for (AgentUser agentUser : agentUsers) {
-            Long userId = agentUser.getId();
-            User user = userRepository.findById(userId).orElseThrow(EntityNotFoundException::new);
-            Integer portfolioCount = portfolioRepository.countByUserId(userId);
-            Integer likeCount = likeRepository.countByAgentUserId(userId);
-            Integer reviewCount = reviewRepository.countByAgentUser(agentUser);
-
-            Double starRating = reviewRepository.findAverageStarCountByAgent(agentUser.getId());
-            if (starRating == null) {
-                starRating = 0.0;
-            }
-
-            AgentMatchingResponse agentMatchingResponse = AgentMatchingResponse.builder()
-                    .agentId(agentIdUUIDUtil.encodeLong(userId))
-                    .profileUrl(Optional.ofNullable(user.getProfile_image_url()).orElse(""))
-                    .agentSpecialty(category)
-                    .portfolioCount(portfolioCount)
-                    .agentName(agentUser.getAgentName())
-                    .title(Optional.ofNullable(agentUser.getIntroductionTitle()).orElse(""))
-                    .starRating(starRating)
-                    .likeCount(likeCount)
-                    .reviewCount(reviewCount)
-                    .singleHouseholdExpert(Optional.ofNullable(agentUser.getSingleHouseholdExpertRequest()).orElse(false))
-                    .build();
-            matchingList.add(agentMatchingResponse);
+        // 카테고리가 비어 있으면 전체 조회, 그렇지 않으면 필터링
+        if (category == null || category.trim().isEmpty()) {
+            userPage = userRepository.findAll(pageable);
+        } else {
+            userPage = userRepository.findByAgentUser_AgentSpecialty(AgentSpecialty.getByDescription(category), pageable);
         }
 
+        List<User> users = userPage.getContent();
+        List<AgentMatchingResponse> matchingList = new ArrayList<>();
+
+        for (User user : users) {
+            Long userId = user.getId();
+            int portfolioCount = portfolioRepository.countByUserId(userId);
+            Optional<AgentUser> optionalAgentUser = agentUserRepository.findById(userId);
+
+            if (optionalAgentUser.isPresent()) {
+                AgentUser agentUser = optionalAgentUser.get();
+                String agentSpecialty = AgentSpecialty.getDescriptionByAgentSpecialty(agentUser.getAgentSpecialty());
+
+                Integer likeCount = likeRepository.countByAgentUserId(userId);
+                Integer reviewCount = reviewRepository.countByAgentUser(agentUser);
+                Double starRating = Optional.ofNullable(reviewRepository.findAverageStarCountByAgent(agentUser.getId())).orElse(0.0);
+
+                boolean isLiked = agentLikeRepository.existsByUserIdAndAgentUserId(userId, agentUser.getId());
+                AgentMatchingResponse agentMatchingResponse = AgentMatchingResponse.builder()
+                        .agentId(agentIdUUIDUtil.encodeLong(userId))
+                        .profileUrl(user.getProfile_image_url())
+                        .agentSpecialty(agentSpecialty)
+                        .portfolioCount(portfolioCount)
+                        .agentName(agentUser.getAgentName())
+                        .title(agentUser.getIntroductionTitle())
+                        .starRating(starRating)
+                        .likeCount(likeCount)
+                        .liked(isLiked)
+                        .reviewCount(reviewCount)
+                        .singleHouseholdExpert(agentUser.getSingleHouseholdExpertRequest())
+                        .build();
+                matchingList.add(agentMatchingResponse);
+            }
+        }
 
         return MatchingResponse.builder()
                 .matching(matchingList)
-                .totalElements(agentUserPage.getTotalElements())
-                .totalPages(agentUserPage.getTotalPages())
-                .currentPage(agentUserPage.getNumber())
-                .isLast(agentUserPage.isLast())
+                .totalElements(userPage.getTotalElements())
+                .totalPages(userPage.getTotalPages())
+                .currentPage(userPage.getNumber())
+                .isLast(userPage.isLast())
                 .build();
     }
 
@@ -233,6 +243,38 @@ public class MainPageService {
                 .externalLink(externalLink)
                 .content(Optional.ofNullable(portfolio.getContent()).orElse(""))
                 .portfolioList(imageUrls)
+                .build();
+    }
+
+    public ReviewPageResponse getAgentReview(String agentId, Pageable pageable) {
+        Long userId = agentIdUUIDUtil.decodeLong(agentId);
+        AgentUser agentUser = agentUserRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공인중개사입니다."));
+
+        Page<Review> reviewPage = reviewRepository.findPagedReviewsByAgentUser(agentUser, pageable);
+
+        List<ReviewResponse> reviewResponses = reviewPage.getContent().stream()
+                .map(this::convertToReviewResponse)
+                .toList();
+
+        return ReviewPageResponse.builder()
+                .content(reviewResponses)
+                .totalElements(reviewPage.getTotalElements())
+                .totalPages(reviewPage.getTotalPages())
+                .currentPage(reviewPage.getNumber())
+                .isLast(reviewPage.isLast())
+                .build();
+    }
+
+    private ReviewResponse convertToReviewResponse(Review review) {
+        return ReviewResponse.builder()
+                .reviewId(review.getId())
+                .profileUrl(review.getUser().getProfile_image_url())
+                .nickname(review.getUser().getNickname())
+                .starCount(review.getStarCount())
+                .content(review.getContent())
+                .createdAt(review.getCreatedAt().toString())
+                .updatedAt(review.getUpdatedAt().toString())
                 .build();
     }
 }

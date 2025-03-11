@@ -21,4 +21,7 @@ public interface AgentLikeRepository extends JpaRepository<AgentLike, Long> {
     void deleteAllByUser(User user);
 
     void deleteAllByAgentUser(AgentUser agentUser);
+
+    @Query("SELECT COUNT(al) > 0 FROM AgentLike al WHERE al.user.id = :userId AND al.agentUser.id = :agentId")
+    boolean existsByUserIdAndAgentUserId(@Param("userId") Long userId, @Param("agentId") Long agentId);
 }
