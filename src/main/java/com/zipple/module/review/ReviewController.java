@@ -2,7 +2,6 @@ package com.zipple.module.review;
 
 import com.zipple.module.review.domain.ReviewRequest;
 import com.zipple.module.review.domain.ReviewResponse;
-import com.zipple.module.review.entity.Review;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,23 +21,25 @@ public class ReviewController {
 
     @Operation(summary = "리뷰 작성", description = "공인중개사에 대한 리뷰를 작성합니다.")
     @PostMapping("/{agentId}")
-    public ResponseEntity<Review> createReview(
+    public ResponseEntity<String> createReview(
             @Parameter(name = "agentId", description = "리뷰 달릴 중개사")
             @PathVariable(value = "agentId") String agentId,
             @RequestBody ReviewRequest reviewRequest
     ) {
-        return ResponseEntity.ok(reviewService.createReview(agentId, reviewRequest));
+        reviewService.createReview(agentId, reviewRequest);
+        return ResponseEntity.ok("리뷰 작성 성공");
     }
 
     @Hidden
     @Operation(summary = "리뷰 수정", description = "작성한 리뷰를 수정합니다.")
     @PutMapping("/{reviewId}")
-    public ResponseEntity<Review> updateReview(
+    public ResponseEntity<String> updateReview(
             @Parameter(name = "reviewId", description = "리뷰 달릴 중개사")
             @PathVariable(value = "reviewId") Long reviewId,
             @RequestBody ReviewRequest reviewRequest
             ) {
-        return ResponseEntity.ok(reviewService.updateReview(reviewId, reviewRequest));
+        reviewService.updateReview(reviewId, reviewRequest);
+        return ResponseEntity.ok("리뷰 수정 완료");
     }
 
     @Operation(summary = "리뷰 삭제", description = "작성한 리뷰를 삭제합니다.")
