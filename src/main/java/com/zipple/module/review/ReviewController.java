@@ -2,7 +2,6 @@ package com.zipple.module.review;
 
 import com.zipple.module.review.domain.ReviewRequest;
 import com.zipple.module.review.domain.ReviewResponse;
-import com.zipple.module.review.entity.Review;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
