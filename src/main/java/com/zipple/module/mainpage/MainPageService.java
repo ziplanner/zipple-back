@@ -174,7 +174,6 @@ public class MainPageService {
     @Transactional(readOnly = true)
     public MatchingResponse getMatchingCategory(String category, Pageable pageable) {
         Page<User> userPage;
-
         // 카테고리가 비어 있으면 전체 조회, 그렇지 않으면 필터링
         if (category == null || category.trim().isEmpty()) {
             userPage = userRepository.findAll(pageable);
@@ -193,10 +192,10 @@ public class MainPageService {
             if (optionalAgentUser.isPresent()) {
                 AgentUser agentUser = optionalAgentUser.get();
                 String agentSpecialty = AgentSpecialty.getDescriptionByAgentSpecialty(agentUser.getAgentSpecialty());
-
                 Integer likeCount = likeRepository.countByAgentUserId(userId);
                 Integer reviewCount = reviewRepository.countByAgentUser(agentUser);
                 Double starRating = Optional.ofNullable(reviewRepository.findAverageStarCountByAgent(agentUser.getId())).orElse(0.0);
+
 
                 boolean isLiked = agentLikeRepository.existsByUserIdAndAgentUserId(userId, agentUser.getId());
                 AgentMatchingResponse agentMatchingResponse = AgentMatchingResponse.builder()
