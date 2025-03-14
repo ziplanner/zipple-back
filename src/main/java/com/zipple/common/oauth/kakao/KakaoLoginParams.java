@@ -13,6 +13,7 @@ import org.springframework.util.MultiValueMap;
 @Schema(description = "인가 코드")
 public class KakaoLoginParams implements OAuthLoginParams {
 
+    @Schema(description = "카카오 인가 코드 입력", example = "code=뒤에 입력")
     private String authorizationCode;
 
     @Override

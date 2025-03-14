@@ -54,3 +54,11 @@ springdoc:
     disable-swagger-default-url: true
     display-request-duration: true
     operations-sorter: alpha
+
+sens:
+  Access-Key-ID: VUpOp3iSVWDNFuU1QTSi
+  Secret-Key: PY1o5O2dIFcrtz74W2QxAZWzCZYOph8qbTj01up6
+  Service-ID: ncp:sms:kr:264473442036:zipzoong
+  Sender-Phone: 821077723010
+  url:
+    api: https://sens.apigw.ntruss.com/sms/v2

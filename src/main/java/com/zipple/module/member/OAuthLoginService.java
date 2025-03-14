@@ -11,7 +11,7 @@ import com.zipple.common.utils.GetMember;
 import com.zipple.module.like.entity.AgentLikeRepository;
 import com.zipple.module.member.common.entity.AgentUser;
 import com.zipple.module.member.common.entity.User;
-import com.zipple.module.member.common.entity.category.AgentType;
+
 import com.zipple.module.member.common.repository.AgentUserRepository;
 import com.zipple.module.member.common.repository.GeneralUserRepository;
 import com.zipple.module.member.common.repository.UserRepository;
@@ -306,7 +306,7 @@ public class OAuthLoginService {
     }
 
     private String determineUserType(User user) {
-        if (user == null) {
+        if (user.getAgentUser() == null && user.getGeneralUser() == null) {
             return UserType.NOT_REGISTERED.getDescription();
         }
 
