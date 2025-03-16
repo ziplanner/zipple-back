@@ -41,8 +41,8 @@ public class SecurityConfig {
                                     "/api/auth/renew",
                                     "/api/**",
                                     "/**",
-                                    "/swagger-ui/**", // Swagger UI
-                                    "/v3/api-docs/**", // OpenAPI Docs
+                                    "/swagger-ui/**",
+                                    "/v3/api-docs/**",
                                     "/swagger-resources/**",
                                     "/webjars/**",
                                     "/api/auth/**",

@@ -3,9 +3,11 @@ package com.zipple.module.member.oauth;
 import com.zipple.common.utils.GetMember;
 import com.zipple.module.member.common.entity.AgentUser;
 import com.zipple.module.member.common.entity.GeneralUser;
+import com.zipple.module.member.common.entity.User;
 import com.zipple.module.member.common.entity.category.AgentSpecialty;
 import com.zipple.module.member.common.entity.category.AgentType;
 import com.zipple.module.member.common.entity.category.HousingType;
+import com.zipple.module.member.common.repository.UserRepository;
 import com.zipple.module.member.oauth.model.AgentUserRequest;
 import com.zipple.module.member.oauth.model.GeneralUserRequest;
 import com.zipple.module.member.common.repository.AgentUserRepository;
@@ -28,10 +30,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AfterOAuthService {
-    private final String URL = "http://44.203.190.167:8081/zipple/";
+    private final String URL = "https://api.zipple.co.kr/zipple/";
     private final GetMember getMember;
     private final GeneralUserRepository generalUserRepository;
     private final AgentUserRepository agentUserRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public void generalRegister(GeneralUserRequest generalUserRequest) {
@@ -59,7 +62,7 @@ public class AfterOAuthService {
                 .officeAddress(agentUserRequest.getOfficeAddress())
                 .ownerName(agentUserRequest.getOwnerName())
                 .ownerContactNumber(agentUserRequest.getOwnerContactNumber())
-                .singleHouseholdExpertRequest(agentUserRequest.getSingleHouseholdExpertRequest())
+                .singleHouseholdExpertRequest(agentUserRequest.getSingleHousehold())
                 .agentOfficeRegistrationCertificate(
                         URL + documentsPath(agentCertificationDocuments, 0)
                 )
@@ -77,9 +80,15 @@ public class AfterOAuthService {
                 .agentContactNumber(agentUserRequest.getAgentContactNumber())
                 .agentSpecialty(agentSpecialty)
                 .mandatoryTerms(true)
-                .optionalTerms(agentUserRequest.getMarketingNotificationTerms())
+                .birthday(agentUserRequest.getBirthday())
+                .foreigner(agentUserRequest.getForeigner())
+                .messageVerify(agentUserRequest.getMessageVerify())
+                .optionalTerms(agentUserRequest.getMarketingAgree())
                 .build();
         agentUserRepository.save(agentUser);
+        User user = getMember.getCurrentMember();
+        user.setEmail(agentUserRequest.getEmail());
+        userRepository.save(user);
     }
 
     private String documentsPath(List<MultipartFile> agentCertificationDocuments, int count) {
