@@ -46,6 +46,12 @@ public class AgentUser {
     @Column(name = "primary_contact_number")
     private String primaryContactNumber;
 
+    @Column(name = "foreigner")
+    private String foreigner;
+
+    @Column(name = "birthday")
+    private String birthday;
+
     @Column(name = "office_address")
     private String officeAddress;
 
@@ -84,6 +90,9 @@ public class AgentUser {
 
     @Column(name = "external_link")
     private String externalLink;
+
+    @Column(name = "messageVerify")
+    Boolean messageVerify;
 
     @Column(name = "mandatory_terms")
     private Boolean mandatoryTerms;

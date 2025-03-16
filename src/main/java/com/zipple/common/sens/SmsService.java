@@ -66,8 +66,10 @@ public class SmsService {
         String messageContent = "[" + messageCode + "] 집플에서 보내는 인증번호 입니다.";
 
         String sendNumber = messageResponse.getTo();
+
+        MessageRequest newMessageRequest = new MessageRequest(sendNumber, messageContent);
         List<MessageRequest> messages = new ArrayList<>();
-        messages.add(messageResponse);
+        messages.add(newMessageRequest);
 
         saveVerificationCode(sendNumber, messageCode);
 
@@ -75,7 +77,7 @@ public class SmsService {
                 .type("SMS")
                 .contentType("COMM")
                 .countryCode("82")
-                .from(phoneNumber)
+                .from("01077723010")
                 .content(messageContent)
                 .messages(messages)
                 .build();

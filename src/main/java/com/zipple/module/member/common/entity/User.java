@@ -34,6 +34,9 @@ public class User implements UserDetails {
     private String profile_image_url;
     private String birthday;
 
+    @Version
+    private Integer version;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "o_auth_provider")
     private OAuthProvider oAuthProvider;
