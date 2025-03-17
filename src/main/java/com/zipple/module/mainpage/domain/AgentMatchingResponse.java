@@ -37,6 +37,9 @@ public class AgentMatchingResponse {
     @Schema(description = "좋아요 여부", example = "true")
     private Boolean liked;
 
+    @Schema(description = "중개소 이름", example = "중개소")
+    private String businessName;
+
     @Schema(description = "리뷰 갯수", example = "21")
     private Integer reviewCount;
 

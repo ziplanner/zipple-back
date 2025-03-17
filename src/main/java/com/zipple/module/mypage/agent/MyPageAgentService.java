@@ -142,6 +142,7 @@ public class MyPageAgentService {
         portfolio.setPortfolioImage(savedImages);
         portfolioRepository.save(portfolio);
     }
+
     @Transactional(readOnly = true)
     public PortfolioPageResponse getLicensedAgentPortfolios(Pageable pageable) {
         User user = getMember.getCurrentMember();

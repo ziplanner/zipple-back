@@ -27,15 +27,15 @@ public class User implements UserDetails {
 
     @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(unique = true, nullable = false)
+    private String mainEmail;
     private String password;
     private String nickname;
     private String gender;
     private String age_range;
     private String profile_image_url;
     private String birthday;
-
-    @Version
-    private Integer version;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "o_auth_provider")

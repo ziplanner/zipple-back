@@ -28,4 +28,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("SELECT r FROM Review r WHERE r.agentUser = :agentUser ORDER BY r.createdAt DESC")
     Page<Review> findPagedReviewsByAgentUser(@Param("agentUser") AgentUser agentUser, Pageable pageable);
+
+    Integer countAllByAgentUser(AgentUser agentUser);
 }

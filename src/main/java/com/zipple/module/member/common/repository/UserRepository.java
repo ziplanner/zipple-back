@@ -1,5 +1,6 @@
 package com.zipple.module.member.common.repository;
 
+import aj.org.objectweb.asm.commons.Remapper;
 import com.zipple.module.member.common.entity.User;
 import com.zipple.module.member.common.entity.category.AgentSpecialty;
 import org.springframework.data.domain.Page;
@@ -16,4 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u JOIN u.agentUser au WHERE au.agentSpecialty = :category")
     Page<User> findByAgentUser_AgentSpecialty(@Param("category") AgentSpecialty category, Pageable pageable);
+
+    Optional<User> findByMainEmail(String email);
 }
