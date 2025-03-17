@@ -84,5 +84,4 @@ public class MyPageAgentController {
         myPageAgentService.createLicensedPortfolio(portfolioImages, portfolioTitle, portfolioContent);
         return ResponseEntity.ok("포트폴리오 생성 완료");
     }
-
 }

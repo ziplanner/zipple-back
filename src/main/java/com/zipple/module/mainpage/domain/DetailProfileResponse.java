@@ -32,6 +32,15 @@ public class DetailProfileResponse {
     @Schema(description = "중개사 이름", example = "권수연")
     private String agentName;
 
+    @Schema(description = "유선 번호", example = "042-1231-1231")
+    private String landLineNumber;
+
+    @Schema(description = "리뷰 전체 개수", example = "25")
+    private Integer reviewTotalCount;
+
+    @Schema(description = "개업인지 소속인지", example = "개업")
+    private String agentType;
+
     @Schema(description = "상호명", example = "수연 부동산")
     private String businessName;
 

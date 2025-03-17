@@ -134,6 +134,9 @@ public class MainPageService {
 
         Double startRating = Optional.ofNullable(reviewRepository.findAverageStarCountByAgent(agentUser.getId())).orElse(0.0);
 
+        String agentType = AgentType.getDescriptionByAgentType(agentUser.getAgentType());
+        Integer reviewTotalCount = reviewRepository.countAllByAgentUser(agentUser);
+
         return DetailProfileResponse.builder()
                 .email(user.getEmail())
                 .profileUrl(Optional.ofNullable(user.getProfile_image_url()).orElse(""))
@@ -141,6 +144,9 @@ public class MainPageService {
                 .externalLink(Optional.ofNullable(agentUser.getExternalLink()).orElse(""))
                 .agentName(agentUser.getAgentName())
                 .starRating(startRating)
+                .reviewTotalCount(reviewTotalCount)
+                .agentType(agentType)
+                .landLineNumber(agentUser.getPrimaryContactNumber())
                 .businessName(agentUser.getBusinessName())
                 .agentSpecialty(AgentSpecialty.getDescriptionByAgentSpecialty(agentUser.getAgentSpecialty()))
                 .agentRegistrationNumber(agentUser.getAgentRegistrationNumber())
@@ -206,6 +212,7 @@ public class MainPageService {
                         .agentName(agentUser.getAgentName())
                         .title(agentUser.getIntroductionTitle())
                         .starRating(starRating)
+                        .businessName(agentUser.getBusinessName())
                         .likeCount(likeCount)
                         .liked(isLiked)
                         .reviewCount(reviewCount)
@@ -238,6 +245,7 @@ public class MainPageService {
                 .orElse("");
 
         return DetailPortfolioResponse.builder()
+                .agentId(agentIdUUIDUtil.encodeLong(portfolio.getUser().getId()))
                 .title(portfolio.getTitle())
                 .externalLink(externalLink)
                 .content(Optional.ofNullable(portfolio.getContent()).orElse(""))

@@ -21,4 +21,11 @@ public enum AgentType {
         }
         throw new IllegalArgumentException("Invalid Housing Type: " + value);
     }
+
+    public static String getDescriptionByAgentType(AgentType agentType) {
+        if(agentType == null) {
+            return null;
+        }
+        return agentType.getDescription();
+    }
 }

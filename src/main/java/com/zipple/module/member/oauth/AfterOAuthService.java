@@ -52,9 +52,10 @@ public class AfterOAuthService {
 
     @Transactional
     public void agentRegisters(AgentUserRequest agentUserRequest, List<MultipartFile> agentCertificationDocuments, MultipartFile agentImage) {
+        User user = getMember.getCurrentMember();
         AgentSpecialty agentSpecialty = AgentSpecialty.getByDescription(agentUserRequest.getAgentSpecialty());
         AgentUser agentUser = AgentUser.builder()
-                .user(getMember.getCurrentMember())
+                .user(user)
                 .agentType(AgentType.fromValue(agentUserRequest.getAgentType()))
                 .businessName(agentUserRequest.getBusinessName())
                 .agentRegistrationNumber(agentUserRequest.getAgentRegistrationNumber())
@@ -86,8 +87,8 @@ public class AfterOAuthService {
                 .optionalTerms(agentUserRequest.getMarketingAgree())
                 .build();
         agentUserRepository.save(agentUser);
-        User user = getMember.getCurrentMember();
         user.setEmail(agentUserRequest.getEmail());
+        user.setAgentUser(agentUser);
         userRepository.save(user);
     }
 

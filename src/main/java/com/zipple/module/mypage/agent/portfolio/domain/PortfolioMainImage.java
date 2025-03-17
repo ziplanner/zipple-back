@@ -1,6 +1,9 @@
 package com.zipple.module.mypage.agent.portfolio.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,5 +31,5 @@ public class PortfolioMainImage {
     private String mainImageUrl;
 
     @Schema(description = "포트폴리오 생성 날짜", example = "2025-01-19T12:00:00")
-    private LocalDateTime createdAt;
+    private String createdAt;
 }

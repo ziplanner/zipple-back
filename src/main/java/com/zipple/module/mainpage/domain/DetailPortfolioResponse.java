@@ -15,6 +15,7 @@ import java.util.List;
 @Schema(description = "메인 포트폴리오 상세 조회 응답 데이터")
 public class DetailPortfolioResponse {
 
+    private String agentId;
     private String title;
     private String externalLink;
     private String content;

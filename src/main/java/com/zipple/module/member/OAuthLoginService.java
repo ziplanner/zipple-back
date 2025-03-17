@@ -12,6 +12,7 @@ import com.zipple.module.like.entity.AgentLikeRepository;
 import com.zipple.module.member.common.entity.AgentUser;
 import com.zipple.module.member.common.entity.User;
 
+import com.zipple.module.member.common.entity.category.AgentType;
 import com.zipple.module.member.common.repository.AgentUserRepository;
 import com.zipple.module.member.common.repository.GeneralUserRepository;
 import com.zipple.module.member.common.repository.UserRepository;
@@ -81,7 +82,7 @@ public class OAuthLoginService {
     }
 
     protected Long findOrCreateMember(OAuthInfoResponse oAuthInfoResponse) {
-        return userRepository.findByEmail(oAuthInfoResponse.getEmail())
+        return userRepository.findByMainEmail(oAuthInfoResponse.getEmail())
                 .map(User::getId)
                 .orElseGet(() -> newMember(oAuthInfoResponse));
     }
@@ -89,6 +90,7 @@ public class OAuthLoginService {
     protected Long newMember(OAuthInfoResponse oAuthInfoResponse) {
         User user = User.builder()
                 .email(oAuthInfoResponse.getEmail())
+                .mainEmail(oAuthInfoResponse.getEmail())
                 .nickname(oAuthInfoResponse.getNickname())
                 .gender(oAuthInfoResponse.getGender())
                 .age_range(oAuthInfoResponse.getAge_range())
@@ -314,9 +316,15 @@ public class OAuthLoginService {
             return UserType.GENERAL.getDescription();
         }
 
-        return switch (Objects.requireNonNull(Optional.ofNullable(user.getAgentUser())
+        AgentType agentType = Optional.of(user.getAgentUser())
                 .map(AgentUser::getAgentType)
-                .orElse(null))) {
+                .orElse(null);
+
+        if (agentType == null) {
+            return UserType.NOT_REGISTERED.getDescription();
+        }
+
+        return switch (agentType) {
             case BUSINESS_AGENT -> UserType.BUSINESS_AGENT.getDescription();
             case AFFILIATED_AGENT -> UserType.AFFILIATED_AGENT.getDescription();
             default -> UserType.NOT_REGISTERED.getDescription();
