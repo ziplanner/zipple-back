@@ -29,9 +29,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -43,6 +45,8 @@ public class MyPageAgentService {
     private final UserRepository userRepository;
     private final PortfolioRepository portfolioRepository;
     private final PortfolioImageRepository portfolioImageRepository;
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     @Transactional(readOnly = true)
     public MyPageAgentResponse getLicensedAgent() {
@@ -143,19 +147,47 @@ public class MyPageAgentService {
         portfolioRepository.save(portfolio);
     }
 
-    @Transactional(readOnly = true)
+//    @Transactional(readOnly = true)
+//    public PortfolioPageResponse getLicensedAgentPortfolios(Pageable pageable) {
+//        User user = getMember.getCurrentMember();
+//        Long userId = user.getId();
+//        AgentUser agentUser = agentUserRepository.findByUserId(userId);
+//        Page<PortfolioMainImage> page = portfolioImageRepository.findByPortfolioUserIdAndPortfolioAgentTypeAndIsMainTrue(userId, pageable, agentUser.getAgentType());
+//
+//        return PortfolioPageResponse.builder()
+//                .content(page.getContent())
+//                .totalElements(page.getTotalElements())
+//                .totalPages(page.getTotalPages())
+//                .currentPage(page.getNumber())
+//                .isLast(page.isLast())
+//                .build();
+//    }
+
     public PortfolioPageResponse getLicensedAgentPortfolios(Pageable pageable) {
         User user = getMember.getCurrentMember();
         Long userId = user.getId();
         AgentUser agentUser = agentUserRepository.findByUserId(userId);
-        Page<PortfolioMainImage> page = portfolioImageRepository.findMainImagesWithPagination(userId, pageable, agentUser.getAgentType());
+
+        Page<PortfolioImage> portfolioPage = portfolioImageRepository.findByPortfolioUserIdAndPortfolioAgentTypeAndIsMainTrue(
+                userId, agentUser.getAgentType(), pageable
+        );
+
+        List<PortfolioMainImage> portfolioList = portfolioPage.getContent().stream()
+                .map(portfolioImage -> PortfolioMainImage.builder()
+                        .portfolioId(portfolioImage.getPortfolio().getId())
+                        .portfolioTitle(portfolioImage.getPortfolio().getTitle())
+                        .portfolioContent(portfolioImage.getPortfolio().getContent())
+                        .mainImageUrl(portfolioImage.getImageUrl())
+                        .createdAt(portfolioImage.getPortfolio().getCreatedAt().format(DATE_FORMATTER))
+                        .build())
+                .collect(Collectors.toList());
 
         return PortfolioPageResponse.builder()
-                .content(page.getContent())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .currentPage(page.getNumber())
-                .isLast(page.isLast())
+                .content(portfolioList)
+                .totalElements(portfolioPage.getTotalElements())
+                .totalPages(portfolioPage.getTotalPages())
+                .currentPage(portfolioPage.getNumber())
+                .isLast(portfolioPage.isLast())
                 .build();
     }
 
@@ -172,6 +204,7 @@ public class MyPageAgentService {
                 .email(user.getEmail())
                 .agentType(agentUser.getAgentType().getDescription())
                 .agentSpecialty(agentSpecialty)
+                .profileUrl(user.getProfile_image_url())
                 .businessName(agentUser.getBusinessName())
                 .agentRegistrationNumber(agentUser.getAgentRegistrationNumber())
                 .primaryContactNumber(agentUser.getPrimaryContactNumber())

@@ -98,7 +98,7 @@ public class AfterOAuthService {
             if (index == count) {
                 try {
                     String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                    String baseDir = "/home/ubuntu/zipple/upload";
+                    String baseDir = "home/ubuntu/zipple/upload";
                     Long userId = getMember.getCurrentMember().getId();
                     String directoryPath = baseDir + "/" + userId + "/" + date;
 
@@ -125,7 +125,7 @@ public class AfterOAuthService {
         return "";
     }
 
-    private String imagePath(MultipartFile agentCertificationDocuments) {
+    private String imagePath(MultipartFile agentImage) {
         return "";
     }
 

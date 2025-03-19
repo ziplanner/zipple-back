@@ -27,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -158,7 +159,8 @@ public class MainPageService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
     public PortfolioPageResponse getAgentPortfolio(String agentId, Pageable pageable) {
         Long userId = agentIdUUIDUtil.decodeLong(agentId);
         AgentUser agentUser = agentUserRepository.findById(userId)
@@ -166,21 +168,52 @@ public class MainPageService {
 
         AgentType agentType = agentUser.getAgentType();
 
-        Page<PortfolioMainImage> page = portfolioImageRepository.findMainImagesByUserIdWithPagination(userId, agentType, pageable);
+        Page<PortfolioImage> portfolioPage = portfolioImageRepository.findByPortfolioUserIdAndPortfolioAgentTypeAndIsMainTrue(
+                userId, agentType, pageable
+        );
+
+        List<PortfolioMainImage> portfolioList = portfolioPage.getContent().stream()
+                .map(portfolioImage -> PortfolioMainImage.builder()
+                        .portfolioId(portfolioImage.getPortfolio().getId())
+                        .portfolioTitle(portfolioImage.getPortfolio().getTitle())
+                        .portfolioContent(portfolioImage.getPortfolio().getContent())
+                        .mainImageUrl(portfolioImage.getImageUrl())
+                        .createdAt(portfolioImage.getPortfolio().getCreatedAt().format(DATE_FORMATTER))
+                        .build())
+                .collect(Collectors.toList());
 
         return PortfolioPageResponse.builder()
-                .content(page.getContent())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .currentPage(page.getNumber())
-                .isLast(page.isLast())
+                .content(portfolioList)
+                .totalElements(portfolioPage.getTotalElements())
+                .totalPages(portfolioPage.getTotalPages())
+                .currentPage(portfolioPage.getNumber())
+                .isLast(portfolioPage.isLast())
                 .build();
     }
+
+//    @Transactional(readOnly = true)
+//    public PortfolioPageResponse getAgentPortfolio(String agentId, Pageable pageable) {
+//        Long userId = agentIdUUIDUtil.decodeLong(agentId);
+//        AgentUser agentUser = agentUserRepository.findById(userId)
+//                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공인중개사입니다."));
+//
+//        AgentType agentType = agentUser.getAgentType();
+//
+//        Page<PortfolioMainImage> page = portfolioImageRepository.findByPortfolioUserIdAndPortfolioAgentTypeAndIsMainTrue(userId, agentType, pageable);
+//
+//        return PortfolioPageResponse.builder()
+//                .content(page.getContent())
+//                .totalElements(page.getTotalElements())
+//                .totalPages(page.getTotalPages())
+//                .currentPage(page.getNumber())
+//                .isLast(page.isLast())
+//                .build();
+//    }
 
     @Transactional(readOnly = true)
     public MatchingResponse getMatchingCategory(String category, Pageable pageable) {
         Page<User> userPage;
-        // 카테고리가 비어 있으면 전체 조회, 그렇지 않으면 필터링
+
         if (category == null || category.trim().isEmpty()) {
             userPage = userRepository.findAll(pageable);
         } else {

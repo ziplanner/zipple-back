@@ -28,6 +28,7 @@ public class MyPageAgentAllResponse {
     private String agentOfficeRegistrationCertificate;
     private String businessRegistrationCertification;
     private String agentLicense;
+    private String profileUrl;
     private String agentImage;
     private String title;
     private String content;
