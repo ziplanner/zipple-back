@@ -3,16 +3,14 @@ package com.zipple.module.review.entity;
 import com.zipple.module.member.common.entity.AgentUser;
 import com.zipple.module.member.common.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reviews")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
