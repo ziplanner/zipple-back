@@ -30,4 +30,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Page<Review> findPagedReviewsByAgentUser(@Param("agentUser") AgentUser agentUser, Pageable pageable);
 
     Integer countAllByAgentUser(AgentUser agentUser);
+
+    List<Review> findByUser(User user);
 }

@@ -24,8 +24,19 @@ public class GlobalExceptionHandler {
         return buildResponse(ex.getErrorCode());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return buildResponse(ErrorCode.INVALID_REQUEST);
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<Object> handleNullPointerException(NullPointerException ex) {
+        return buildResponse(ErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGenericException(Exception ex) {
-        return buildResponse(ErrorCode.INTERNAL_SERVER_ERROR);
+        ex.printStackTrace();
+        return buildResponse(ErrorCode.INVALID_REQUEST);
     }
 }

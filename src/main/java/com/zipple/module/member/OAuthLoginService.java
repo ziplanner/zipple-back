@@ -23,6 +23,7 @@ import com.zipple.module.member.oauth.model.RoleResponse;
 import com.zipple.module.mypage.agent.portfolio.Portfolio;
 import com.zipple.module.mypage.agent.portfolio.PortfolioImageRepository;
 import com.zipple.module.mypage.agent.portfolio.PortfolioRepository;
+import com.zipple.module.review.entity.Review;
 import com.zipple.module.review.entity.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -208,12 +209,8 @@ public class OAuthLoginService {
     }
 
     private void deleteUserFromDatabase(Long userId) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-            throw new IllegalArgumentException("해당 ID의 사용자가 존재하지 않습니다.");
-        }
-
-        User user = optionalUser.get();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 사용자가 존재하지 않습니다."));
 
         List<Portfolio> portfolios = portfolioRepository.findByUser(user);
         for (Portfolio portfolio : portfolios) {
@@ -221,10 +218,24 @@ public class OAuthLoginService {
         }
         portfolioRepository.deleteAll(portfolios);
 
-        reviewRepository.deleteAllByUser(user);
-
         agentLikeRepository.deleteAllByUser(user);
-        agentLikeRepository.deleteAllByAgentUser(user.getAgentUser());
+        if (user.getAgentUser() != null) {
+            agentLikeRepository.deleteAllByAgentUser(user.getAgentUser());
+        }
+
+        List<Review> writtenReviews = reviewRepository.findByUser(user);
+        for (Review review : writtenReviews) {
+            review.setUser(null);
+        }
+
+        if (user.getAgentUser() != null) {
+            List<Review> receivedReviews = reviewRepository.findByAgentUser(user.getAgentUser());
+            for (Review review : receivedReviews) {
+                review.setAgentUser(null);
+            }
+        }
+
+        reviewRepository.flush();
 
         if (user.getGeneralUser() != null) {
             generalUserRepository.delete(user.getGeneralUser());
@@ -234,6 +245,7 @@ public class OAuthLoginService {
         }
 
         userRepository.delete(user);
+
         log.info("사용자 ID {}의 계정 및 모든 연관 데이터를 삭제했습니다.", userId);
     }
 
