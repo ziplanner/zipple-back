@@ -47,7 +47,11 @@ public class ReviewService {
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        return reviewRepository.save(review);
+        reviewRepository.save(review);
+        user.getWrittenReviews().add(review);
+        agentUser.getReceivedReviews().add(review);
+
+        return review;
     }
 
     @Transactional

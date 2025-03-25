@@ -52,7 +52,7 @@ public class AfterOAuthController {
     )
     public ResponseEntity<Void> agentRegister(
             @Parameter(name = "agentCertificationDocuments", description = "배열로 보내줄 것(1. 중개 사무소 등록증, 2. 사업자 등록증, 3. 공인중개사 자격증)")
-            @RequestPart("agentCertificationDocuments")
+            @RequestPart(value = "agentCertificationDocuments", required = false)
             List<MultipartFile> agentCertificationDocuments,
             @Parameter(name = "agentImage", description = "공인 중개사 본인 인증 사진")
             @RequestPart("agentImage")
