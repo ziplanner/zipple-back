@@ -3,6 +3,7 @@ package com.zipple.module.member.common.entity;
 import com.zipple.module.like.entity.AgentLike;
 import com.zipple.module.member.common.entity.category.AgentType;
 import com.zipple.module.member.common.entity.category.AgentSpecialty;
+import com.zipple.module.review.entity.Review;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,6 +30,10 @@ public class AgentUser {
     @OneToMany(mappedBy = "agentUser", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<AgentLike> receivedLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "agentUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Review> receivedReviews = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private AgentType agentType;

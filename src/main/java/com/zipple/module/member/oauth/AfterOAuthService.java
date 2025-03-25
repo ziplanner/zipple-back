@@ -25,12 +25,14 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AfterOAuthService {
-    private final String URL = "https://api.zipple.co.kr/zipple/";
+    private final String URL = "https://api.zipple.co.kr/zipple";
     private final GetMember getMember;
     private final GeneralUserRepository generalUserRepository;
     private final AgentUserRepository agentUserRepository;
@@ -54,6 +56,12 @@ public class AfterOAuthService {
     public void agentRegisters(AgentUserRequest agentUserRequest, List<MultipartFile> agentCertificationDocuments, MultipartFile agentImage) {
         User user = getMember.getCurrentMember();
         AgentSpecialty agentSpecialty = AgentSpecialty.getByDescription(agentUserRequest.getAgentSpecialty());
+
+        String cert1Path = saveDocumentFile(agentCertificationDocuments, 0);
+        String cert2Path = saveDocumentFile(agentCertificationDocuments, 1);
+        String cert3Path = saveDocumentFile(agentCertificationDocuments, 2);
+        String imagePath = saveSingleFile(agentImage);
+
         AgentUser agentUser = AgentUser.builder()
                 .user(user)
                 .agentType(AgentType.fromValue(agentUserRequest.getAgentType()))
@@ -64,17 +72,11 @@ public class AfterOAuthService {
                 .ownerName(agentUserRequest.getOwnerName())
                 .ownerContactNumber(agentUserRequest.getOwnerContactNumber())
                 .singleHouseholdExpertRequest(agentUserRequest.getSingleHousehold())
-                .agentOfficeRegistrationCertificate(
-                        URL + documentsPath(agentCertificationDocuments, 0)
-                )
-                .businessRegistrationCertification(
-                        URL + documentsPath(agentCertificationDocuments, 1)
-                )
-                .agentLicense(URL + documentsPath(agentCertificationDocuments, 2))
-                .agentImage(URL + imagePath(agentImage))
-                .externalLink(
-                        (agentUserRequest.getExternalLink() != null) ? agentUserRequest.getExternalLink() : ""
-                )
+                .agentOfficeRegistrationCertificate(URL + cert1Path)
+                .businessRegistrationCertification(URL + cert2Path)
+                .agentLicense(URL + cert3Path)
+                .agentImage(URL + imagePath)
+                .externalLink(agentUserRequest.getExternalLink() != null ? agentUserRequest.getExternalLink() : "")
                 .introductionTitle(agentUserRequest.getIntroductionTitle())
                 .introductionContent(agentUserRequest.getIntroductionContent())
                 .agentName(agentUserRequest.getAgentName())
@@ -86,48 +88,42 @@ public class AfterOAuthService {
                 .messageVerify(agentUserRequest.getMessageVerify())
                 .optionalTerms(agentUserRequest.getMarketingAgree())
                 .build();
+
         agentUserRepository.save(agentUser);
+
         user.setEmail(agentUserRequest.getEmail());
         user.setAgentUser(agentUser);
         userRepository.save(user);
     }
 
-    private String documentsPath(List<MultipartFile> agentCertificationDocuments, int count) {
-        int index = 0;
-        for (MultipartFile file : agentCertificationDocuments) {
-            if (index == count) {
-                try {
-                    String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                    String baseDir = "home/ubuntu/zipple/upload";
-                    Long userId = getMember.getCurrentMember().getId();
-                    String directoryPath = baseDir + "/" + userId + "/" + date;
+    private String saveDocumentFile(List<MultipartFile> files, int index) {
+        if (files == null || files.size() <= index || files.get(index).isEmpty()) return "";
 
-                    Path directory = Paths.get(directoryPath);
-                    if (!Files.exists(directory)) {
-                        Files.createDirectories(directory);
-                    }
+        return saveToDisk(files.get(index));
+    }
 
-                    String fileName = file.getOriginalFilename();
-                    if (fileName == null || fileName.isEmpty()) {
-                        fileName = "default_filename";
-                    }
-                    Path filePath = directory.resolve(fileName);
+    private String saveSingleFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) return "";
+        return saveToDisk(file);
+    }
 
-                    file.transferTo(filePath.toFile());
+    private String saveToDisk(MultipartFile file) {
+        try {
+            String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            Long userId = getMember.getCurrentMember().getId();
+            String baseDir = "/home/ubuntu/zipple/upload/" + userId + "/" + date;
 
-                    return directoryPath + "/" + fileName;
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                }
-            }
-            index++;
+            Files.createDirectories(Paths.get(baseDir));
+
+            String fileName = UUID.randomUUID() + "_" + Optional.ofNullable(file.getOriginalFilename()).orElse("default.file");
+            Path fullPath = Paths.get(baseDir, fileName);
+
+            file.transferTo(fullPath);
+
+            return userId + "/" + date + "/" + fileName;
+        } catch (IOException e) {
+            log.error("파일 저장 실패: {}", e.getMessage(), e);
+            return "";
         }
-        return "";
     }
-
-    private String imagePath(MultipartFile agentImage) {
-        return "";
-    }
-
-
 }

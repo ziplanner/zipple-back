@@ -2,6 +2,7 @@ package com.zipple.module.member.common.entity;
 
 import com.zipple.common.oauth.OAuthProvider;
 import com.zipple.module.like.entity.AgentLike;
+import com.zipple.module.review.entity.Review;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -56,6 +57,10 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<AgentLike> likedAgents = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Review> writtenReviews = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
