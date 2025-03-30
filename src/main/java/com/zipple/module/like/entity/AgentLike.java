@@ -34,14 +34,27 @@ public class AgentLike {
     @JoinColumn(name = "agent_id", nullable = false)
     private AgentUser agentUser;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted;
 
     public static AgentLike createLike(User user, AgentUser agentUser) {
         return AgentLike.builder()
                 .user(user)
                 .agentUser(agentUser)
                 .createdAt(LocalDateTime.now())
+                .isDeleted(false)
                 .build();
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
+    }
+
+    public void restore() {
+        this.isDeleted = false;
+        this.createdAt = LocalDateTime.now();
     }
 }

@@ -18,6 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
+
 @Tag(name = "공인중개사 마이페이지")
 @RequestMapping(value = "/api/v1/mypage/agent")
 @RestController
@@ -84,4 +86,32 @@ public class MyPageAgentController {
         myPageAgentService.createLicensedPortfolio(portfolioImages, portfolioTitle, portfolioContent);
         return ResponseEntity.ok("포트폴리오 생성 완료");
     }
+
+    @Operation(summary = "포트폴리오 수정")
+    @PutMapping(value = "/portfolio/{portfolioId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<String> updateLicensedAgentPortfolio(
+            @Parameter(name = "portfolioTitle", description = "포트폴리오 제목")
+            @RequestParam(value = "portfolioTitle") String portfolioTitle,
+            @Parameter(name = "portfolioContent", description = "포트폴리오 내용")
+            @RequestParam(value = "portfolioContent") String portfolioContent,
+            @Parameter(name = "portfolioImages", description = "포트폴리오 사진 리스트로 받을거에요")
+            @ModelAttribute PortfolioImageList portfolioImages,
+            @PathVariable Long portfolioId
+    ) throws AccessDeniedException {
+        myPageAgentService.updateLicensedAgentPortfolio(portfolioId, portfolioTitle, portfolioContent, portfolioImages);
+        return ResponseEntity.ok("포트폴리오 수정 완료");
+    }
+
+    @Operation(summary = "포트폴리오 삭제")
+    @DeleteMapping(value = "/portfolio/{portfolioId}")
+    public ResponseEntity<String> deleteLicensedAgentPortfolio(
+            @PathVariable Long portfolioId
+    ) throws AccessDeniedException {
+        myPageAgentService.deleteLicensedAgentPortfolio(portfolioId);
+        return ResponseEntity.ok("포트폴리오 삭제 완료");
+    }
+
 }

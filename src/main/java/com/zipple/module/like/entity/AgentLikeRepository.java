@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface AgentLikeRepository extends JpaRepository<AgentLike, Long> {
 
-    Optional<AgentLike> findByUserAndAgentUser(User user, AgentUser agentUser);
+//    Optional<AgentLike> findByUserAndAgentUser(User user, AgentUser agentUser);
     boolean existsByUserAndAgentUser(User user, AgentUser agentUser);
     void deleteByUserAndAgentUser(User user, AgentUser agentUser);
     long countByAgentUser(AgentUser agentUser);
@@ -24,4 +24,8 @@ public interface AgentLikeRepository extends JpaRepository<AgentLike, Long> {
 
     @Query("SELECT COUNT(al) > 0 FROM AgentLike al WHERE al.user.id = :userId AND al.agentUser.id = :agentId")
     boolean existsByUserIdAndAgentUserId(@Param("userId") Long userId, @Param("agentId") Long agentId);
+
+    boolean existsByUserAndAgentUserAndIsDeletedFalse(User user, AgentUser agentUser);
+
+    Optional<AgentLike> findByUserAndAgentUser(User user, AgentUser agentUser);
 }

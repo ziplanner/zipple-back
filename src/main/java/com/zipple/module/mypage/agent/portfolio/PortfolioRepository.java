@@ -25,4 +25,6 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     Optional<Portfolio> findByIdWithUserAndImages(@Param("portfolioId") Long portfolioId);
 
     List<Portfolio> findByUser(User user);
+
+    Optional<Portfolio> findByUserId(Long id);
 }
