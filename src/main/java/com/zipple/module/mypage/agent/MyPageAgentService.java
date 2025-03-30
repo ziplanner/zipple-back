@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -193,35 +194,72 @@ public class MyPageAgentService {
 
     @Transactional(readOnly = true)
     public MyPageAgentAllResponse getAgentAllInfo() {
+        return null;
+    }
+
+    @Transactional
+    public void deleteLicensedAgentPortfolio(Long portfolioId) throws AccessDeniedException {
         User user = getMember.getCurrentMember();
+        Portfolio portfolio = portfolioRepository.findById(portfolioId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 포트폴리오가 존재하지 않습니다. ID = " + portfolioId));
 
-        AgentUser agentUser = agentUserRepository.findById(user.getId())
-                .orElseThrow(() -> new IllegalArgumentException("공인중개사 정보가 존재하지 않습니다."));
+        if (!portfolio.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("본인 소유의 포트폴리오만 삭제할 수 있습니다.");
+        }
 
-        String agentSpecialty = AgentSpecialty.getDescriptionByAgentSpecialty(agentUser.getAgentSpecialty());
+        portfolioRepository.delete(portfolio);
+    }
 
-        return MyPageAgentAllResponse.builder()
-                .email(user.getEmail())
-                .agentType(agentUser.getAgentType().getDescription())
-                .agentSpecialty(agentSpecialty)
-                .profileUrl(user.getProfile_image_url())
-                .businessName(agentUser.getBusinessName())
-                .agentRegistrationNumber(agentUser.getAgentRegistrationNumber())
-                .primaryContactNumber(agentUser.getPrimaryContactNumber())
-                .officeAddress(agentUser.getOfficeAddress())
-                .ownerName(agentUser.getOwnerName())
-                .ownerContactNumber(agentUser.getOwnerContactNumber())
-                .agentName(agentUser.getAgentName())
-                .agentContactNumber(agentUser.getAgentContactNumber())
-                .singleHouseholdExpertRequest(agentUser.getSingleHouseholdExpertRequest())
-                .agentOfficeRegistrationCertificate(agentUser.getAgentOfficeRegistrationCertificate())
-                .businessRegistrationCertification(agentUser.getBusinessRegistrationCertification())
-                .agentLicense(agentUser.getAgentLicense())
-                .agentImage(agentUser.getAgentImage())
-                .title(agentUser.getIntroductionTitle())
-                .content(agentUser.getIntroductionContent())
-                .externalLink(agentUser.getExternalLink())
-                .build();
+    @Transactional
+    public void updateLicensedAgentPortfolio(Long portfolioId, String portfolioTitle, String portfolioContent, PortfolioImageList portfolioImages) throws AccessDeniedException {
+        User currentUser = getMember.getCurrentMember();
+        AgentUser agentUser = currentUser.getAgentUser();
+        AgentType agentType = agentUser.getAgentType();
+
+        Portfolio portfolio = portfolioRepository.findById(portfolioId)
+                .orElseThrow(() -> new IllegalArgumentException("포트폴리오가 존재하지 않습니다."));
+
+        if (!portfolio.getUser().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("본인의 포트폴리오만 수정할 수 있습니다.");
+        }
+
+        List<PortfolioImage> originalImages = portfolio.getPortfolioImage();
+        originalImages.clear();
+
+        String baseDir = "/home/ubuntu/zipple/upload/";
+        String baseUrl = "https://api.zipple.co.kr";
+
+        for (int i = 0; i < portfolioImages.getPortfolioImages().size(); i++) {
+            MultipartFile image = portfolioImages.getPortfolioImages().get(i);
+            String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+            String filePath = baseDir + "/" + fileName;
+
+            try {
+                File destFile = new File(filePath);
+                image.transferTo(destFile);
+
+                String imageUrl = baseUrl + "/zipple" + baseDir + fileName;
+
+                PortfolioImage portfolioImage = PortfolioImage.builder()
+                        .portfolio(portfolio)
+                        .imageUrl(imageUrl)
+                        .isMain(i == 0)
+                        .createdAt(LocalDateTime.now())
+                        .build();
+
+                originalImages.add(portfolioImage);
+
+            } catch (IOException e) {
+                throw new IllegalStateException("이미지 저장 중 오류 발생: " + image.getOriginalFilename(), e);
+            }
+        }
+
+        portfolio.setTitle(portfolioTitle);
+        portfolio.setContent(portfolioContent);
+        portfolio.setAgentType(agentType);
+        portfolio.setUpdatedAt(LocalDateTime.now());
+
+        portfolioRepository.save(portfolio);
     }
 }
 

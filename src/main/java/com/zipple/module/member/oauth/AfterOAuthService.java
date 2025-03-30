@@ -98,7 +98,6 @@ public class AfterOAuthService {
 
     private String saveDocumentFile(List<MultipartFile> files, int index) {
         if (files == null || files.size() <= index || files.get(index).isEmpty()) return "";
-
         return saveToDisk(files.get(index));
     }
 
@@ -107,20 +106,37 @@ public class AfterOAuthService {
         return saveToDisk(file);
     }
 
+//    private String saveToDisk(MultipartFile file) {
+//        try {
+//            String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+//            Long userId = getMember.getCurrentMember().getId();
+//            String baseDir = "/home/ubuntu/zipple/upload/" + userId + "/" + date;
+//
+//            Files.createDirectories(Paths.get(baseDir));
+//
+//            String fileName = UUID.randomUUID() + "_" + Optional.ofNullable(file.getOriginalFilename()).orElse("default.file");
+//            Path fullPath = Paths.get(baseDir, fileName);
+//
+//            file.transferTo(fullPath);
+//
+//            return userId + "/" + date + "/" + fileName;
+//        } catch (IOException e) {
+//            log.error("파일 저장 실패: {}", e.getMessage(), e);
+//            return "";
+//        }
+//    }
     private String saveToDisk(MultipartFile file) {
         try {
-            String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             Long userId = getMember.getCurrentMember().getId();
-            String baseDir = "/home/ubuntu/zipple/upload/" + userId + "/" + date;
+            String fileName = UUID.randomUUID() + "_" + Optional.ofNullable(file.getOriginalFilename()).orElse("default.file");
 
+            String baseDir = "/home/ubuntu/zipple/upload/";
             Files.createDirectories(Paths.get(baseDir));
 
-            String fileName = UUID.randomUUID() + "_" + Optional.ofNullable(file.getOriginalFilename()).orElse("default.file");
             Path fullPath = Paths.get(baseDir, fileName);
-
             file.transferTo(fullPath);
 
-            return userId + "/" + date + "/" + fileName;
+            return baseDir + fileName;
         } catch (IOException e) {
             log.error("파일 저장 실패: {}", e.getMessage(), e);
             return "";
