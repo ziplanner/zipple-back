@@ -24,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -102,7 +103,7 @@ public class MyPageAgentService {
     }
 
     @Transactional
-    public void createLicensedPortfolio(PortfolioImageList portfolioImages, String portfolioTitle, String portfolioContent) {
+    public void createLicensedPortfolio(PortfolioImageList portfolioImages, String portfolioTitle, String portfolioContent, String portfolioLink) {
         User currentUser = getMember.getCurrentMember();
         AgentUser agentUser = currentUser.getAgentUser();
         AgentType agentType = agentUser.getAgentType();
@@ -111,6 +112,7 @@ public class MyPageAgentService {
                 .title(portfolioTitle)
                 .agentType(agentType)
                 .content(portfolioContent)
+                .portfolioLink(portfolioLink)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -121,7 +123,9 @@ public class MyPageAgentService {
 
         for (int i = 0; i < portfolioImages.getPortfolioImages().size(); i++) {
             MultipartFile image = portfolioImages.getPortfolioImages().get(i);
-            String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+            String extension = StringUtils.getFilenameExtension(image.getOriginalFilename());
+            String fileName = UUID.randomUUID().toString() + (extension != null ? "." + extension : "");
+//            String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
             String filePath = baseDir + "/" + fileName;
 
             try {
@@ -194,7 +198,34 @@ public class MyPageAgentService {
 
     @Transactional(readOnly = true)
     public MyPageAgentAllResponse getAgentAllInfo() {
-        return null;
+        User user = getMember.getCurrentMember();
+
+        AgentUser agentUser = agentUserRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("공인중개사 정보가 존재하지 않습니다."));
+
+        String agentSpecialty = AgentSpecialty.getDescriptionByAgentSpecialty(agentUser.getAgentSpecialty());
+
+        return MyPageAgentAllResponse.builder()
+                .email(user.getEmail())
+                .agentType(agentUser.getAgentType().getDescription())
+                .agentSpecialty(agentSpecialty)
+                .businessName(agentUser.getBusinessName())
+                .agentRegistrationNumber(agentUser.getAgentRegistrationNumber())
+                .primaryContactNumber(agentUser.getPrimaryContactNumber())
+                .officeAddress(agentUser.getOfficeAddress())
+                .ownerName(agentUser.getOwnerName())
+                .ownerContactNumber(agentUser.getOwnerContactNumber())
+                .agentName(agentUser.getAgentName())
+                .agentContactNumber(agentUser.getAgentContactNumber())
+                .singleHouseholdExpertRequest(agentUser.getSingleHouseholdExpertRequest())
+                .agentOfficeRegistrationCertificate(agentUser.getAgentOfficeRegistrationCertificate())
+                .businessRegistrationCertification(agentUser.getBusinessRegistrationCertification())
+                .agentLicense(agentUser.getAgentLicense())
+                .agentImage(agentUser.getAgentImage())
+                .title(agentUser.getIntroductionTitle())
+                .content(agentUser.getIntroductionContent())
+                .externalLink(agentUser.getExternalLink())
+                .build();
     }
 
     @Transactional
@@ -211,7 +242,7 @@ public class MyPageAgentService {
     }
 
     @Transactional
-    public void updateLicensedAgentPortfolio(Long portfolioId, String portfolioTitle, String portfolioContent, PortfolioImageList portfolioImages) throws AccessDeniedException {
+    public void updateLicensedAgentPortfolio(Long portfolioId, String portfolioTitle, String portfolioContent, PortfolioImageList portfolioImages, String portfolioLink) throws AccessDeniedException {
         User currentUser = getMember.getCurrentMember();
         AgentUser agentUser = currentUser.getAgentUser();
         AgentType agentType = agentUser.getAgentType();
@@ -231,7 +262,9 @@ public class MyPageAgentService {
 
         for (int i = 0; i < portfolioImages.getPortfolioImages().size(); i++) {
             MultipartFile image = portfolioImages.getPortfolioImages().get(i);
-            String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+            String extension = StringUtils.getFilenameExtension(image.getOriginalFilename());
+            String fileName = UUID.randomUUID().toString() + (extension != null ? "." + extension : "");
+//            String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
             String filePath = baseDir + "/" + fileName;
 
             try {
@@ -258,6 +291,7 @@ public class MyPageAgentService {
         portfolio.setContent(portfolioContent);
         portfolio.setAgentType(agentType);
         portfolio.setUpdatedAt(LocalDateTime.now());
+        portfolio.setPortfolioLink(portfolioLink);
 
         portfolioRepository.save(portfolio);
     }
