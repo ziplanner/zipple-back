@@ -80,10 +80,12 @@ public class MyPageAgentController {
             @RequestParam(value = "portfolioTitle") String portfolioTitle,
             @Parameter(name = "portfolioContent", description = "포트폴리오 내용")
             @RequestParam(value = "portfolioContent") String portfolioContent,
+            @Parameter(name = "portfolioLink", description = "포트폴리오 링크")
+            @RequestParam(value = "portfolioLink") String portfolioLink,
             @Parameter(name = "portfolioImages", description = "포트폴리오 사진 리스트로 받을거에요")
             @ModelAttribute PortfolioImageList portfolioImages
             ) {
-        myPageAgentService.createLicensedPortfolio(portfolioImages, portfolioTitle, portfolioContent);
+        myPageAgentService.createLicensedPortfolio(portfolioImages, portfolioTitle, portfolioContent, portfolioLink);
         return ResponseEntity.ok("포트폴리오 생성 완료");
     }
 
@@ -97,11 +99,13 @@ public class MyPageAgentController {
             @RequestParam(value = "portfolioTitle") String portfolioTitle,
             @Parameter(name = "portfolioContent", description = "포트폴리오 내용")
             @RequestParam(value = "portfolioContent") String portfolioContent,
+            @Parameter(name = "portfolioLink", description = "포트폴리오 링크")
+            @RequestParam(value = "portfolioLink") String portfolioLink,
             @Parameter(name = "portfolioImages", description = "포트폴리오 사진 리스트로 받을거에요")
             @ModelAttribute PortfolioImageList portfolioImages,
             @PathVariable Long portfolioId
     ) throws AccessDeniedException {
-        myPageAgentService.updateLicensedAgentPortfolio(portfolioId, portfolioTitle, portfolioContent, portfolioImages);
+        myPageAgentService.updateLicensedAgentPortfolio(portfolioId, portfolioTitle, portfolioContent, portfolioImages, portfolioLink);
         return ResponseEntity.ok("포트폴리오 수정 완료");
     }
 

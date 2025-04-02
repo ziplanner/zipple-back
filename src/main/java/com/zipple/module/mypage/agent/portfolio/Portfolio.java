@@ -40,6 +40,9 @@ public class Portfolio {
     @Column(name = "agent_type", nullable = false)
     private AgentType agentType;
 
+    @Column(name = "portfolio_link")
+    private String portfolioLink;
+
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<PortfolioImage> portfolioImage = new ArrayList<>();
