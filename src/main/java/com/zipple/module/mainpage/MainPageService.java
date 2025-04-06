@@ -63,7 +63,7 @@ public class MainPageService {
                 AgentUser agentUser = optionalAgentUser.get();
                 String agentSpecialty = AgentSpecialty.getDescriptionByAgentSpecialty(agentUser.getAgentSpecialty());
 
-                Integer likeCount = likeRepository.countByAgentUserId(userId);
+                Integer likeCount = likeRepository.countByAgentUserId(userId, false);
                 Integer reviewCount = reviewRepository.countByAgentUser(agentUser);
                 Double startRating = reviewRepository.findAverageStarCountByAgent(agentUser.getId());
                 AgentMatchingResponse agentMatchingResponse = AgentMatchingResponse.builder()

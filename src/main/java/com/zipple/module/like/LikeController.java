@@ -1,9 +1,7 @@
 package com.zipple.module.like;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterStyle;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,13 +35,13 @@ public class LikeController {
         return ResponseEntity.ok("좋아요가 취소되었습니다.");
     }
 
-    @Hidden
-    @Operation(summary = "좋아요 갯수")
-    @GetMapping("/{agentId}/count")
-    public ResponseEntity<Long> getAgentLikeCount(
-            @Parameter(name = "agentId", description = "좋아요 갯수")
+    @Operation(summary = "좋아요", description = "첫 클릭시 데이터 삽입 이후 누름, 안누름 반복")
+    @PostMapping(value = "/once/{agentId}")
+    public ResponseEntity<Void> onceLike(
+            @Parameter(name = "agentId", description = "좋아요 취소 받는 중개사")
             @PathVariable(value = "agentId") String agentId
     ) {
-        return ResponseEntity.ok(likeService.getAgentLikeCount(agentId));
+        likeService.onceLikeAgent(agentId);
+        return ResponseEntity.noContent().build();
     }
 }
