@@ -183,6 +183,7 @@ public class MyPageAgentService {
                         .portfolioTitle(portfolioImage.getPortfolio().getTitle())
                         .portfolioContent(portfolioImage.getPortfolio().getContent())
                         .mainImageUrl(portfolioImage.getImageUrl())
+                        .portfolioLink(portfolioImage.getPortfolio().getPortfolioLink())
                         .createdAt(portfolioImage.getPortfolio().getCreatedAt().format(DATE_FORMATTER))
                         .build())
                 .collect(Collectors.toList());
